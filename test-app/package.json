@@ -1,0 +1,21 @@
+{
+  "name": "neerops-test-service",
+  "version": "0.1.0",
+  "description": "Dummy test application for NeerOps v9 CI/CD pipeline validation",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "neerops",
+    "devops",
+    "cicd",
+    "test"
+  ],
+  "author": "NeerOps",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

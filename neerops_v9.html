@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEEROps v9.0 — Goal-Centric Autonomous DevOps (Cost-Intelligent)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+:root {
+  --bg:        #080C14;
+  --bg1:       #0D1420;
+  --bg2:       #111927;
+  --bg3:       #16202E;
+  --border:    #1E2D40;
+  --border2:   #253548;
+  --text:      #C8D8E8;
+  --text2:     #7A99B8;
+  --text3:     #4A6580;
+  --cyan:      #00D4FF;
+  --cyan2:     #0099CC;
+  --green:     #00C875;
+  --green2:    #00884F;
+  --orange:    #FF8C00;
+  --orange2:   #CC6600;
+  --red:       #FF3B3B;
+  --red2:      #AA1A1A;
+  --purple:    #9B59FF;
+  --purple2:   #6633CC;
+  --yellow:    #FFD600;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.main { margin-left: 240px; flex: 1; overflow-x: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--cyan); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2px; }
+.sidebar-version { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.nav-section { padding: 12px 0 4px; }
+.nav-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); padding: 0 16px 6px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 16px; cursor: pointer; color: var(--text2); font-size: 12px; transition: all 0.15s; border-left: 2px solid transparent; text-decoration: none; }
+.nav-item:hover { color: var(--text); background: var(--bg2); }
+.nav-item.active { color: var(--cyan); border-left-color: var(--cyan); background: rgba(0,212,255,0.05); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── HEADER ── */
+.page-header { background: var(--bg1); border-bottom: 1px solid var(--border); padding: 28px 36px 24px; }
+.header-eyebrow { font-family: var(--mono); font-size: 10px; color: var(--cyan); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+.header-title { font-size: 26px; font-weight: 600; color: #E8F4FF; letter-spacing: -0.02em; margin-bottom: 6px; }
+.header-sub { font-size: 13px; color: var(--text2); max-width: 680px; line-height: 1.5; }
+.header-meta { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+.meta-pill { font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 2px; border: 1px solid; }
+
+/* ── GOAL BANNER ── */
+.goal-banner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+.goal-cell {
+  padding: 14px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.goal-cell:last-child { border-right: none; }
+.goal-num {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.goal-label { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 2px; letter-spacing: 0.02em; }
+.goal-sub { font-size: 10px; color: var(--text3); line-height: 1.4; font-family: var(--mono); }
+
+/* ── SECTIONS ── */
+.section { padding: 32px 36px; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+.section-num { font-family: var(--mono); font-size: 10px; color: var(--cyan); letter-spacing: 0.1em; }
+.section-title { font-size: 17px; font-weight: 600; color: #D8EEFF; letter-spacing: -0.01em; }
+.section-body { color: var(--text2); font-size: 13px; line-height: 1.7; max-width: 820px; margin-bottom: 20px; }
+
+/* ── CALLOUTS ── */
+.honest-box { background: rgba(255,140,0,0.06); border: 1px solid rgba(255,140,0,0.25); border-left: 3px solid var(--orange); border-radius: 4px; padding: 14px 16px; margin-bottom: 20px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+.honest-box strong { color: var(--orange); }
+.info-box { background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); border-left: 3px solid var(--cyan); border-radius: 4px; padding: 14px 16px; margin-bottom: 20px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+.info-box strong { color: var(--cyan); }
+.goal-box { background: rgba(0,200,117,0.05); border: 1px solid rgba(0,200,117,0.2); border-left: 3px solid var(--green); border-radius: 4px; padding: 14px 16px; margin-bottom: 20px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+.goal-box strong { color: var(--green); }
+
+/* ── FLOW DIAGRAM ── */
+.flow-container { overflow-x: auto; margin-bottom: 20px; }
+.flow { display: flex; flex-direction: column; gap: 0; min-width: 700px; }
+.flow-step { display: grid; grid-template-columns: 80px 36px 1fr 200px; gap: 0; align-items: stretch; border: 1px solid var(--border); border-bottom: none; }
+.flow-step:first-child { border-radius: 6px 6px 0 0; }
+.flow-step:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 6px 6px; }
+.flow-num { background: var(--bg2); border-right: 1px solid var(--border); padding: 12px 10px; font-family: var(--mono); font-size: 10px; color: var(--text3); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.flow-icon { border-right: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; padding: 0 8px; }
+.flow-body { padding: 11px 14px; }
+.flow-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.flow-detail { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.flow-detail code { font-family: var(--mono); font-size: 10px; background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--cyan); }
+.flow-meta { border-left: 1px solid var(--border); padding: 11px 12px; background: var(--bg2); display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.flow-time { font-family: var(--mono); font-size: 10px; color: var(--green); }
+.flow-layer { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
+.flow-gate { font-size: 10px; color: var(--orange); }
+
+/* ── CLOSED LOOP ── */
+.loop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.loop-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+.loop-card-title { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.loop-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text2); line-height: 1.4; }
+.loop-item:last-child { border-bottom: none; }
+.loop-arrow { color: var(--cyan); flex-shrink: 0; font-family: var(--mono); font-size: 11px; }
+
+/* ── GLOBALS GRID ── */
+.globals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.global-card { background: var(--bg2); border: 1px solid var(--border); border-top: 2px solid; border-radius: 6px; padding: 14px 12px; }
+.global-name { font-family: var(--mono); font-size: 10px; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.05em; }
+.global-desc { font-size: 11px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+.global-users { font-family: var(--mono); font-size: 9px; color: var(--text3); line-height: 1.6; }
+
+/* ── GOAL CARDS (3-col) ── */
+.goal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.goal-card { background: var(--bg2); border: 1px solid var(--border); border-top: 2px solid; border-radius: 6px; padding: 16px 14px; }
+.goal-card-label { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.goal-card-desc { font-size: 11px; color: var(--text2); line-height: 1.55; margin-bottom: 10px; }
+.goal-card-layers { font-family: var(--mono); font-size: 9px; color: var(--text3); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+
+/* ── LAYER TABLE ── */
+.layer-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+.layer-table th { background: var(--bg2); border: 1px solid var(--border); padding: 9px 12px; text-align: left; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); font-weight: 500; }
+.layer-table td { border: 1px solid var(--border); padding: 9px 12px; vertical-align: top; color: var(--text2); line-height: 1.5; }
+.layer-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+.layer-table td:first-child { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.layer-table td code { font-family: var(--mono); font-size: 10px; background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--cyan); }
+
+/* ── ISSUES TABLE ── */
+.issues-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.issue-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.issue-header { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; }
+.issue-sev { font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 2px; text-align: center; letter-spacing: 0.05em; }
+.sev-crit { background: rgba(255,59,59,0.15); color: var(--red); border: 1px solid rgba(255,59,59,0.3); }
+.sev-high { background: rgba(255,140,0,0.12); color: var(--orange); border: 1px solid rgba(255,140,0,0.25); }
+.sev-med  { background: rgba(255,214,0,0.1);  color: var(--yellow); border: 1px solid rgba(255,214,0,0.2); }
+.sev-low  { background: rgba(0,200,117,0.08); color: var(--green); border: 1px solid rgba(0,200,117,0.2); }
+.issue-title { font-size: 12px; font-weight: 500; color: var(--text); }
+.issue-toggle { font-family: var(--mono); font-size: 12px; color: var(--text3); transition: transform 0.2s; }
+.issue-toggle.open { transform: rotate(90deg); }
+.issue-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+.issue-body.open { display: block; padding-top: 12px; }
+.issue-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.issue-label { color: var(--text3); font-family: var(--mono); font-size: 10px; padding-top: 2px; }
+.issue-val { color: var(--text2); line-height: 1.5; }
+.issue-val code { font-family: var(--mono); font-size: 10px; background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--cyan); }
+.issue-val.mitigation { color: var(--green); }
+
+/* ── HEALING PIPELINE ── */
+.heal-pipeline { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+.heal-stage { border-right: 1px solid var(--border); padding: 16px 14px; }
+.heal-stage:last-child { border-right: none; }
+.heal-stage-head { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.heal-pct { font-size: 22px; font-weight: 600; margin-bottom: 2px; font-family: var(--mono); }
+.heal-time { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-bottom: 10px; }
+.heal-item { font-size: 11px; color: var(--text2); padding: 3px 0; line-height: 1.4; }
+
+/* ── SAFETY CONSTRAINTS ── */
+.constraint-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.constraint { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: flex-start; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 10px 14px; font-size: 12px; }
+.c-num { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--red); padding-top: 1px; }
+.c-text { color: var(--text2); line-height: 1.5; }
+.c-text strong { color: var(--text); }
+
+/* ── SLA TABLE ── */
+.sla-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.sla-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+.sla-metric { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.sla-val { font-family: var(--mono); font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.sla-target { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; }
+.bar-fill { height: 100%; border-radius: 2px; background: var(--green); }
+
+/* ── MISC ── */
+.tag { display: inline-block; font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 2px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.tag-new { background: rgba(155,89,255,0.15); color: var(--purple); border: 1px solid rgba(155,89,255,0.3); }
+.tag-fixed { background: rgba(0,200,117,0.1); color: var(--green); border: 1px solid rgba(0,200,117,0.25); }
+.tag-global { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
+.tag-warn { background: rgba(255,140,0,0.1); color: var(--orange); border: 1px solid rgba(255,140,0,0.25); }
+.tag-goal { background: rgba(0,200,117,0.1); color: var(--green); border: 1px solid rgba(0,200,117,0.25); }
+
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+pre { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-family: var(--mono); font-size: 11px; color: var(--text2); overflow-x: auto; line-height: 1.6; margin-bottom: 16px; }
+pre .kw { color: var(--cyan); }
+pre .str { color: var(--green); }
+pre .cm { color: var(--text3); }
+pre .val { color: var(--orange); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── GAPS TABLE ── */
+.gap-card { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 6px; padding: 16px 18px; margin-bottom: 10px; }
+.gap-card.resolved { border-left-color: var(--green); }
+.gap-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.gap-tag { font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.gap-tag-open { background: rgba(255,59,59,0.15); color: var(--red); border: 1px solid rgba(255,59,59,0.3); }
+.gap-tag-fixed { background: rgba(0,200,117,0.12); color: var(--green); border: 1px solid rgba(0,200,117,0.3); }
+.gap-challenge { font-size: 13px; font-weight: 600; color: var(--text); }
+.gap-mitigation { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.gap-impl { font-family: var(--mono); font-size: 10px; color: var(--cyan); background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; padding: 8px 12px; margin-top: 8px; line-height: 1.6; white-space: pre-wrap; }
+
+/* ── RL PIPELINE GRID ── */
+.rl-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.rl-card { background: var(--bg2); border: 1px solid var(--border); border-top: 2px solid var(--purple); border-radius: 6px; padding: 14px; }
+.rl-card-title { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--purple); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.rl-card-body { font-size: 11px; color: var(--text2); line-height: 1.6; }
+
+/* ── SUPERVISOR PANEL ── */
+.supervisor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.supervisor-card { background: var(--bg2); border: 1px solid var(--border); border-top: 2px solid var(--orange); border-radius: 6px; padding: 14px; }
+.supervisor-title { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--orange); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.supervisor-body { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.supervisor-body code { font-family: var(--mono); font-size: 10px; background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--cyan); }
+
+/* ── COST INTELLIGENCE ── */
+.cost-strategy-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.cost-card { background: var(--bg2); border: 1px solid var(--border); border-top: 2px solid var(--green); border-radius: 6px; padding: 14px; }
+.cost-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.cost-card-rank { font-family: var(--mono); font-size: 18px; font-weight: 600; color: var(--green); line-height: 1; flex-shrink: 0; }
+.cost-card-label { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.cost-card-body { font-size: 11px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+.cost-card-where { font-family: var(--mono); font-size: 9px; color: var(--text3); border-top: 1px solid var(--border); padding-top: 6px; line-height: 1.7; }
+.cost-card-status { font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 2px; display: inline-block; margin-top: 6px; }
+.cost-status-exists { background: rgba(0,200,117,0.1); color: var(--green); border: 1px solid rgba(0,200,117,0.25); }
+.cost-status-new { background: rgba(155,89,255,0.12); color: var(--purple); border: 1px solid rgba(155,89,255,0.3); }
+.cost-status-gap { background: rgba(255,140,0,0.1); color: var(--orange); border: 1px solid rgba(255,140,0,0.25); }
+
+.heuristic-spec { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+.heuristic-spec-head { background: var(--bg3); border-bottom: 1px solid var(--border); padding: 10px 16px; font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; }
+.heuristic-row { display: grid; grid-template-columns: 160px 1fr 1fr 120px; gap: 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.heuristic-row:last-child { border-bottom: none; }
+.heuristic-row.header { background: var(--bg3); font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+.heuristic-cell { padding: 8px 12px; border-right: 1px solid var(--border); color: var(--text2); line-height: 1.4; }
+.heuristic-cell:last-child { border-right: none; }
+.heuristic-cell:first-child { font-family: var(--mono); font-size: 10px; color: var(--cyan); }
+
+.embed-flow { display: flex; align-items: center; gap: 0; margin-bottom: 20px; overflow-x: auto; }
+.embed-node { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; min-width: 130px; flex-shrink: 0; }
+.embed-node-title { font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.embed-node-body { font-size: 10px; color: var(--text2); line-height: 1.4; }
+.embed-arrow { color: var(--border2); font-family: var(--mono); font-size: 18px; padding: 0 6px; flex-shrink: 0; }
+.embed-arrow.hit { color: var(--green); }
+.embed-arrow.miss { color: var(--orange); }
+
+@media (max-width: 900px) {
+  .cost-strategy-grid { grid-template-columns: 1fr; }
+  .heuristic-row { grid-template-columns: 1fr 1fr; }
+}
+
+.section { animation: fadeUp 0.4s ease both; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .globals-grid { grid-template-columns: 1fr 1fr; }
+  .goal-grid { grid-template-columns: 1fr; }
+  .heal-pipeline { grid-template-columns: 1fr 1fr; }
+  .loop-grid { grid-template-columns: 1fr; }
+  .sla-grid { grid-template-columns: 1fr 1fr; }
+  .goal-banner { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">NEEROps</div>
+    <div class="sidebar-version">v9.0 · Cost-Intelligent</div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-label">Goals First</div>
+      <a class="nav-item active" href="#system-goals">
+        <div class="nav-dot" style="background:var(--green)"></div>System Goals
+      </a>
+      <a class="nav-item" href="#global-singletons">
+        <div class="nav-dot" style="background:var(--cyan)"></div>Global Singletons
+      </a>
+      <a class="nav-item" href="#orchestrator">
+        <div class="nav-dot" style="background:var(--purple)"></div>Orchestrator
+      </a>
+      <a class="nav-item" href="#correct-order">
+        <div class="nav-dot" style="background:var(--text3)"></div>Layer Execution Order
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Deployment Pipeline</div>
+      <a class="nav-item" href="#e2e-flow">
+        <div class="nav-dot" style="background:var(--green)"></div>Full PR Flow
+      </a>
+      <a class="nav-item" href="#closed-loop">
+        <div class="nav-dot" style="background:var(--cyan)"></div>Closed Loop Connections
+      </a>
+      <a class="nav-item" href="#layer-specs">
+        <div class="nav-dot" style="background:var(--text3)"></div>All Layer Specs
+      </a>
+      <a class="nav-item" href="#security">
+        <div class="nav-dot" style="background:var(--red)"></div>Security Pipeline
+      </a>
+      <a class="nav-item" href="#canary">
+        <div class="nav-dot" style="background:var(--orange)"></div>Bayesian Canary
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">24/7 Uptime & Healing</div>
+      <a class="nav-item" href="#healing">
+        <div class="nav-dot" style="background:var(--yellow)"></div>Healing Pipeline
+      </a>
+      <a class="nav-item" href="#llmops">
+        <div class="nav-dot" style="background:var(--purple)"></div>LLMOps Integration
+      </a>
+      <a class="nav-item" href="#cost-intelligence">
+        <div class="nav-dot" style="background:var(--green)"></div>Cost Intelligence ✦ New
+      </a>
+      <a class="nav-item" href="#reasoning-engine">
+        <div class="nav-dot" style="background:var(--cyan)"></div>Autonomous Reasoning Engine
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Hardening</div>
+      <a class="nav-item" href="#real-issues">
+        <div class="nav-dot" style="background:var(--red)"></div>Failure Modes
+      </a>
+      <a class="nav-item" href="#safety">
+        <div class="nav-dot" style="background:var(--orange)"></div>Safety Constraints
+      </a>
+      <a class="nav-item" href="#slas">
+        <div class="nav-dot" style="background:var(--green)"></div>SLAs & Metrics
+      </a>
+      <a class="nav-item" href="#production-gaps">
+        <div class="nav-dot" style="background:var(--red)"></div>Production Gaps ✦ New
+      </a>
+      <a class="nav-item" href="#rl-pipeline">
+        <div class="nav-dot" style="background:var(--purple)"></div>RL Training Pipeline ✦ New
+      </a>
+      <a class="nav-item" href="#supervisor">
+        <div class="nav-dot" style="background:var(--orange)"></div>Autonomy Supervisor ✦ New
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="header-eyebrow">Autonomous DevOps + LLMOps · Cost-Intelligent Architecture</div>
+  <div class="header-title">NEEROps v9.0</div>
+  <div class="header-sub">
+    Cost-intelligent evolution of v8.1. Adds the Cost Intelligence Layer (§11): Heuristic Library specification, embedding-based semantic cache before LLM escalation, incremental Knowledge Graph diffing (analyze only changed subgraph), local model inference tier between RL and full LLM, and a formal deterministic-first decision tree enforced at L0 Cognition. All seven enterprise cost strategies are structurally integrated — not bolted on. v8.1 production hardening fully retained.
+  </div>
+  <div class="header-meta">
+    <span class="meta-pill" style="color:var(--green);border-color:var(--green2)">G1 · Smooth Deployment</span>
+    <span class="meta-pill" style="color:var(--cyan);border-color:var(--cyan2)">G2 · 24/7 Uptime</span>
+    <span class="meta-pill" style="color:var(--yellow);border-color:var(--orange2)">G3 · Auto-Heal</span>
+    <span class="meta-pill" style="color:var(--purple);border-color:var(--purple2)">LLMOps · Operational</span>
+    <span class="meta-pill" style="color:var(--text2);border-color:var(--border2)">Level 4 Autonomy</span>
+    <span class="meta-pill" style="color:var(--green);border-color:var(--green2)">Cost Intelligence §11 ✦ New</span>
+  </div>
+</div>
+
+<!-- GOAL BANNER -->
+<div class="goal-banner">
+  <div class="goal-cell">
+    <div class="goal-num" style="color:var(--green)">G1</div>
+    <div>
+      <div class="goal-label">Smooth Deployment</div>
+      <div class="goal-sub">PR → Production autonomously.<br>Bayesian gates, not timers. Bad<br>deploys caught at 5%, not 100%.</div>
+    </div>
+  </div>
+  <div class="goal-cell">
+    <div class="goal-num" style="color:var(--cyan)">G2</div>
+    <div>
+      <div class="goal-label">24/7 Uptime</div>
+      <div class="goal-sub">Continuous monitor. Heal starts<br>within 20 sec of anomaly.<br>Rollback always possible.</div>
+    </div>
+  </div>
+  <div class="goal-cell">
+    <div class="goal-num" style="color:var(--yellow)">G3</div>
+    <div>
+      <div class="goal-label">Auto-Heal</div>
+      <div class="goal-sub">Heuristic → RL → LLM → Human.<br>Human &lt;0.1% of events.<br>Every fix teaches the system.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SYSTEM GOALS ═══ -->
+<section class="section" id="system-goals">
+  <div class="section-header">
+    <span class="section-num">00</span>
+    <span class="section-title">Goal-First Architecture — Design Constraints That Cannot Be Violated</span>
+  </div>
+
+  <div class="goal-box">
+    <strong>Architectural filter:</strong> Every component, layer, and feedback loop in this document is justified by at least one of G1 / G2 / G3 / LLMOps. Components that do not serve one of these four goals are not in this architecture — regardless of how technically interesting they are.
+  </div>
+
+  <div class="goal-grid">
+
+    <div class="goal-card" style="border-top-color:var(--green)">
+      <div class="goal-card-label" style="color:var(--green)">G1 · Smooth Deployment</div>
+      <div class="goal-card-desc">Every PR travels from webhook to production with zero manual steps. The pipeline is a statistical decision engine, not a timed sequence. A bad deploy is caught at 5% canary traffic before it reaches users at scale. Build failures, security blocks, and infrastructure timeouts all have explicit recovery paths — the pipeline never hangs silently.</div>
+      <div class="goal-card-layers">
+        Layers: L1 Understanding · L2 Review · L3 Build · L4 Deploy<br>
+        Guards: Bayesian canary · Dead-man's switch · Orchestrator FSM<br>
+        Security: Gitleaks · Trivy · ZAP · Cosign signing
+      </div>
+    </div>
+
+    <div class="goal-card" style="border-top-color:var(--cyan)">
+      <div class="goal-card-label" style="color:var(--cyan)">G2 · 24/7 Uptime</div>
+      <div class="goal-card-desc">The system must remain operational regardless of deployment activity, infrastructure changes, secret rotation, or node maintenance. Monitoring is continuous and parallel to deployments — not sequential. Anomaly detection runs three tiers (static threshold → 3σ → Bayesian ML). If the monitor itself fails, a circuit breaker activates threshold-only fallback rules immediately.</div>
+      <div class="goal-card-layers">
+        Layers: L5 Monitor · L6 Healing · Closed-loop feedback<br>
+        Guards: Circular heal detection · Auto-rollback SLA · Vault rotation lock<br>
+        Failsafe: T+10 safe rollback · T+15 unconditional rollback
+      </div>
+    </div>
+
+    <div class="goal-card" style="border-top-color:var(--yellow)">
+      <div class="goal-card-label" style="color:var(--yellow)">G3 · Auto-Heal + LLMOps</div>
+      <div class="goal-card-desc">When anything breaks, the system heals itself before a human notices. Heuristics resolve 90% of events in ~5 seconds. RL handles variations of known patterns. LLMs diagnose genuinely novel failures and convert each resolution into a new heuristic rule — teaching themselves out of a job. L9 continuously improves the prompts, model choices, and alert thresholds autonomously.</div>
+      <div class="goal-card-layers">
+        Layers: L6 4-tier healing · L9 Meta-Learning · L0 Cognition<br>
+        LLMOps: Prompt Evolver · Model Selector · Token budget mgmt<br>
+        Feedback: Real-time heuristic update · KL-drift detector
+      </div>
+    </div>
+
+  </div>
+
+  <table class="layer-table">
+    <thead><tr><th>Principle</th><th>What It Means in This Architecture</th><th>Enforced By</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Orchestrator owns all state</td>
+        <td>No layer calls another directly. Every state transition flows through the Orchestrator via Event Bus. Race conditions and duplicate deploys are structurally impossible — not just unlikely.</td>
+        <td>Redis FSM · Event Bus · Per-service namespace lock (Redis SETNX)</td>
+      </tr>
+      <tr>
+        <td>Every layer is a reporting agent</td>
+        <td>Each layer Observes → Plans → Acts → Reports. A layer that receives a command always emits a structured result, even on failure. The Orchestrator always knows exactly what happened and why.</td>
+        <td>LayerResult contract · Circuit breakers · Dead-man's timeouts</td>
+      </tr>
+      <tr>
+        <td>Feedback closes all loops in real-time</td>
+        <td>Every outcome (heal success, canary pass, rollback) feeds back immediately. Heuristic library updates on heal success — not daily batch. World Model updates from live telemetry every 30 seconds.</td>
+        <td>L7 Feedback · Real-time heuristic write · L5 → L8 metric stream</td>
+      </tr>
+      <tr>
+        <td>Rollback is always possible</td>
+        <td>The Orchestrator maintains last-known-good image tag for every service at all times. Rollback executes at any point — including mid-canary and during human escalation. T+15: unconditional.</td>
+        <td>Orchestrator FSM · QLDB image record · Dead-man's switch on k8s ops</td>
+      </tr>
+      <tr>
+        <td>Security gates are non-bypassable</td>
+        <td>Gitleaks, Trivy, ZAP, Cosign are not configurable gates — they are hard blocks. L8 and L9 cannot override them. Security-critical prompt sections are SHA-256 hash-locked from L9 mutation.</td>
+        <td>k8s admission webhook (Connaisseur) · Orchestrator hard gates · Constitutional hash</td>
+      </tr>
+      <tr>
+        <td>LLMs serve the goal, not the other way around</td>
+        <td>LLMs are the third resort in healing (0.9% of events), not the first. They operate under token budgets, rate limit pre-checks, confidence thresholds, and dry-run validation. Every LLM success produces a heuristic rule to replace future LLM calls.</td>
+        <td>L0 Cognition solver selection · Token budget reserve · NewHeuristicRule event on success</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ GLOBAL SINGLETONS ═══ -->
+<section class="section" id="global-singletons">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">Global Singletons <span class="tag tag-global">Available to All Layers</span></span>
+  </div>
+  <div class="section-body">
+    These four modules are initialized once at process startup and injected into every layer. No layer creates its own instance. No layer calls another layer directly — all communication goes through the Event Bus. These are the infrastructure that makes every goal achievable.
+  </div>
+
+  <div class="globals-grid">
+    <div class="global-card" style="border-top-color:var(--cyan)">
+      <div class="global-name" style="color:var(--cyan)">EVENT BUS</div>
+      <div class="global-desc">Redis Streams. All inter-layer communication is published/subscribed here. Orchestrator is the sole consumer of control events. No layer calls another layer directly — ever.</div>
+      <div class="global-users">
+        Used by: ALL layers<br>
+        Tech: Redis Streams 7+<br>
+        Guarantee: At-least-once delivery<br>
+        Consumer groups: per layer<br>
+        Max lag alert: 5 seconds
+      </div>
+    </div>
+
+    <div class="global-card" style="border-top-color:var(--green)">
+      <div class="global-name" style="color:var(--green)">VAULT CLIENT</div>
+      <div class="global-desc">HashiCorp Vault sidecar. Injected at pod startup. All secrets fetched at runtime — never baked into images or env vars. Every secret access is logged to QLDB. Rotation locked during active canary.</div>
+      <div class="global-users">
+        Used by: L1 (git), L2 (scan APIs), L3 (registry), L4 (k8s), L6 (heal scripts), L8 (LLM keys)<br>
+        Rotation: 30d (DB), 90d (API)<br>
+        Deploy lock: rotation deferred during CANARY_* state
+      </div>
+    </div>
+
+    <div class="global-card" style="border-top-color:var(--purple)">
+      <div class="global-name" style="color:var(--purple)">OTEL TRACER</div>
+      <div class="global-desc">OpenTelemetry SDK. Every layer wraps its execution in a span. Trace ID = PR ID. A single Jaeger query shows the full lifecycle from webhook to merge or rollback.</div>
+      <div class="global-users">
+        Used by: ALL layers<br>
+        Backend: Jaeger + Tempo<br>
+        Span alert threshold: defined per layer<br>
+        Sampling: 100% for deployments, 10% for healing
+      </div>
+    </div>
+
+    <div class="global-card" style="border-top-color:var(--orange)">
+      <div class="global-name" style="color:var(--orange)">LOGGER (QLDB)</div>
+      <div class="global-desc">Append-only audit writer. Every decision, gate pass/fail, healing action, LLM call, and human escalation is written here. PostgreSQL for reads; QLDB for tamper-proof audit; S3 Object Lock for legal hold.</div>
+      <div class="global-users">
+        Used by: ALL layers<br>
+        QLDB retention: 7 years<br>
+        S3 WORM retention: 10 years<br>
+        Write latency SLA: &lt;50ms<br>
+        Batch: events buffered 500ms max
+      </div>
+    </div>
+  </div>
+
+  <pre><span class="cm"># Global singleton initialization — runs once at NEEROps process startup</span>
+<span class="cm"># All layers receive these via dependency injection, never instantiate their own</span>
+
+<span class="kw">class</span> GlobalContext:
+    event_bus:   RedisStreams    <span class="cm"># ALL inter-layer comms</span>
+    vault:       VaultClient    <span class="cm"># ALL secrets</span>
+    tracer:      OTELTracer     <span class="cm"># ALL instrumentation</span>
+    logger:      QLDBWriter     <span class="cm"># ALL audit events</span>
+
+<span class="kw">def</span> init_globals() -> GlobalContext:
+    ctx = GlobalContext()
+    ctx.vault     = VaultClient.init_sidecar()          <span class="cm"># already injected by k8s</span>
+    ctx.event_bus = RedisStreams.connect(url=ctx.vault.get(<span class="str">"redis/url"</span>))
+    ctx.tracer    = OTELTracer.init(service=<span class="str">"neerops"</span>)
+    ctx.logger    = QLDBWriter.connect(ledger=<span class="str">"neerops-audit"</span>)
+    <span class="kw">return</span> ctx
+
+<span class="cm"># Every layer receives ctx at construction — never creates its own instance</span>
+layer = CodeReviewLayer(ctx=init_globals())</pre>
+</section>
+
+<!-- ═══ ORCHESTRATOR ═══ -->
+<section class="section" id="orchestrator">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Centralized Orchestrator — The Only State Owner</span>
+  </div>
+  <div class="section-body">
+    The Orchestrator owns the PR state machine. No layer can change system state directly — they publish results to the Event Bus and the Orchestrator decides what happens next. This is not a naming convention: layers literally cannot see each other's internal state.
+  </div>
+
+  <div class="info-box">
+    <strong>Rule:</strong> Every layer publishes a <code>LayerResult</code> event to the Event Bus. The Orchestrator consumes it, updates the state machine, and emits the next <code>LayerCommand</code>. A layer that calls another layer directly is a bug — not a design choice.
+  </div>
+
+  <table class="layer-table">
+    <thead>
+      <tr>
+        <th>Orchestrator Responsibility</th>
+        <th>Implementation</th>
+        <th>What Breaks Without It</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Orchestrator High Availability</td>
+        <td>Active-passive Orchestrator pair. Leader election via Redis Redlock (quorum of 3 Redis nodes). Standby takes over in &lt;5 sec on leader heartbeat miss. All FSM state stored in Redis + PostgreSQL — zero in-memory state. On failover, standby replays the last 10 events from Event Bus consumer group to reconstruct mid-flight PR states. Split-brain guard: only the elected leader may publish LayerCommand events (enforced by token in Redis).</td>
+        <td>Orchestrator becomes SPOF: one process crash pauses all active deployments with no recovery path. Split-brain causes duplicate deploys.</td>
+      </tr>
+      <tr>
+        <td>Redis High Availability</td>
+        <td>Redis Sentinel with 3 sentinels + 1 replica per shard, or Redis Cluster for horizontal scale. FSM state uses append-only Redis Streams (durable). On partition: Orchestrator detects sentinel failover event and pauses state transitions until quorum re-established — no split-brain write. CRDT-compatible lock keys use SET NX with TTL; on partition recovery, expired locks are automatically released, not double-acquired.</td>
+        <td>Redis split-brain corrupts canary lock state. Two Orchestrator instances believe they own the same PR. Duplicate canary deploys contaminate metrics.</td>
+      </tr>
+      <tr>
+        <td>Event Bus High Availability</td>
+        <td>Redis Streams with AOF persistence (appendfsync everysec). Stream consumer groups guarantee at-least-once delivery — a message is not acknowledged until the consuming layer emits a LayerResult. On Redis failover, pending messages in the PEL (Pending Entry List) are claimed by standby consumer after 30s timeout. Dead-letter stream captures messages that fail 3 delivery attempts — Orchestrator alerts and routes to human review.</td>
+        <td>Event Bus loss mid-pipeline orphans PRs in intermediate states with no recovery path.</td>
+      </tr>
+      <tr>
+        <td>PR State Machine</td>
+        <td>Redis-backed FSM. States: DETECTED → UNDERSTANDING → GOAL_CHECK → REVIEWING → BUILDING → STAGING → CANARY_5 → CANARY_50 → ROLLING_100 → MERGED | FAILED | ROLLED_BACK</td>
+        <td>Without a single FSM, two layers can both believe they are "in charge" of the same PR → duplicate deploys, contradictory rollbacks.</td>
+      </tr>
+      <tr>
+        <td>Per-service namespace lock</td>
+        <td>Redis SETNX lock on <code>lock:{service}:{namespace}</code>. Held for canary duration. Second PR for same service queues behind first.</td>
+        <td>Two concurrent PRs for the same service contaminate each other's canary metrics. Impossible to attribute an anomaly to the correct PR.</td>
+      </tr>
+      <tr>
+        <td>Dead-man's switch</td>
+        <td>Every kubectl / helm operation has a 5-min timeout watchdog. On timeout: publish <code>OperationTimeout</code> → Orchestrator triggers immediate rollback.</td>
+        <td>Kubernetes API unavailability mid-canary would hang the pipeline forever with no recovery.</td>
+      </tr>
+      <tr>
+        <td>Retry budget</td>
+        <td>Per-PR, per-layer retry counter in Redis. Max 3 retries with exponential backoff (2s, 8s, 32s). On exhaust: emit <code>LayerFailed</code>, skip to Healing.</td>
+        <td>Unlimited retries on a build failure waste resources and block all other PRs queued behind.</td>
+      </tr>
+      <tr>
+        <td>Circuit breakers</td>
+        <td>Per-layer circuit breaker: open on 3 failures in 5 min. Half-open: probe after 60s. If Layer N circuit is open, Orchestrator uses heuristic fallback and alerts.</td>
+        <td>A broken Build layer would be retried continuously, burning compute and blocking all other PRs.</td>
+      </tr>
+      <tr>
+        <td>Human SLA timer</td>
+        <td>On CRITICAL escalation: Orchestrator sets a 15-min countdown. At T+10min: attempt safe rollback. At T+15min: unconditional rollback + QLDB SLA breach record.</td>
+        <td>Human does not respond → system stays degraded indefinitely with no recovery path.</td>
+      </tr>
+      <tr>
+        <td>Vault rotation lock</td>
+        <td>Orchestrator defers Vault secret rotation during CANARY_* state using two concrete mechanisms: (1) <code>vault write sys/leases/renew/{lease_id} increment=3600</code> — extends the existing lease TTL by 1 hour, preventing the scheduled rotation from firing; (2) A custom Vault policy sentinel attached to the NEEROps role blocks rotation writes when the Orchestrator sets a <code>neerops/canary-lock/{service}</code> KV flag. Lock is released on MERGED or ROLLED_BACK via <code>vault kv delete neerops/canary-lock/{service}</code>. If the lock is not released within 2 hours (circuit break on abandoned canary), a Vault watchdog alert fires for manual resolution. QLDB records every lock set and release with timestamp.</td>
+        <td>Vault rotates DB credentials during canary → all canary pods lose DB connection → false rollback triggered (I03).</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ CORRECT ORDER ═══ -->
+<section class="section" id="correct-order">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Layer Execution Order — Dependency Chain</span>
+  </div>
+  <div class="section-body">
+    The logical dependency chain is: understand before judging, build before deploying, deploy before monitoring. L8 Goal Check cannot run before L1 Code Understanding because it has no input. This is the enforced execution sequence.
+  </div>
+
+  <table class="layer-table">
+    <thead>
+      <tr><th>Order</th><th>Layer</th><th>Depends On</th><th>Produces</th><th>Dependency Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td><td>Webhook Listener</td><td>—</td>
+        <td>PR event on Event Bus</td>
+        <td>Entry point. HMAC-SHA256 validation. Duplicate guard.</td>
+      </tr>
+      <tr>
+        <td>2</td><td>Orchestrator: acquire PR lock + open OTEL trace</td><td>Webhook event</td>
+        <td>PR state = DETECTED; trace_id = pr_id</td>
+        <td>Must own state before any layer touches it.</td>
+      </tr>
+      <tr>
+        <td>3</td><td>L1: Code &amp; Infra Understanding</td><td>PR diff, repo, IaC state</td>
+        <td>Knowledge Graph + risk level + IaC drift report</td>
+        <td>All downstream layers depend on KG. Nothing can start without it.</td>
+      </tr>
+      <tr>
+        <td>4</td><td><strong>L8: Goal Check + World Model query</strong></td><td><strong>L1 Knowledge Graph (required)</strong></td>
+        <td>Goal alignment score, risk envelope, pre-computed healing plans</td>
+        <td>Cannot evaluate goals against a change that hasn't been read yet.</td>
+      </tr>
+      <tr>
+        <td>5</td><td>L2: Code Review (Gitleaks → Semgrep → Mutmut → Pact → Intent → Risk)</td><td>L1 KG, L8 risk score</td>
+        <td>APPROVED / REJECTED / NEEDS_INFO + review report</td>
+        <td>Gitleaks runs first (fastest). Blocks on secrets before any scan API call.</td>
+      </tr>
+      <tr>
+        <td>6</td><td>L3: Build (deps → tests → Trivy → sign → push)</td><td>L2 APPROVED</td>
+        <td>Signed container image in ECR</td>
+        <td>Trivy runs before push (not after). Secrets never in image (Vault).</td>
+      </tr>
+      <tr>
+        <td>7</td><td>L4a: Staging deploy + OWASP ZAP DAST</td><td>L3 image</td>
+        <td>Staging URL + ZAP report</td>
+        <td>ZAP runs on staging, never production. Blocks L4b on MEDIUM+.</td>
+      </tr>
+      <tr>
+        <td>8</td><td>L4b: 5% Bayesian Canary (us-east-1)</td><td>ZAP pass, L5 metrics stream live</td>
+        <td>Bayesian gate result (advance / rollback)</td>
+        <td>Gate is statistical, not time-based. L5 Monitor runs in parallel from this step.</td>
+      </tr>
+      <tr>
+        <td>9</td><td>L4c: 50% Multi-region Canary</td><td>5% gate pass</td>
+        <td>Dual-region Bayesian gate result</td>
+        <td>us-east-1 AND us-west-2 must independently pass their gates.</td>
+      </tr>
+      <tr>
+        <td>10</td><td>L4d: 100% Rollout + auto-merge</td><td>50% gate pass</td>
+        <td>All pods on new version; PR merged to main</td>
+        <td>Final state. Vault rotation lock released. Namespace lock released.</td>
+      </tr>
+      <tr>
+        <td>∥</td><td>L5: Continuous Monitor</td><td>Runs from step 8 onwards (parallel to canary)</td>
+        <td>Metric stream → anomaly events on Event Bus</td>
+        <td>Feeds L4 canary gate pause signal, L6 Healing, L0 Cognition, AND L8 World Model.</td>
+      </tr>
+      <tr>
+        <td>⟳</td><td>L6: Healing (triggered by L5 anomaly)</td><td>Anomaly event from L5</td>
+        <td>Healed state + outcome event; real-time heuristic update on success</td>
+        <td>Healing outcome updates Heuristic Library immediately — not daily batch.</td>
+      </tr>
+      <tr>
+        <td>⟳</td><td>L7: Feedback &amp; RL (triggered on terminal state)</td><td>Terminal state from Orchestrator</td>
+        <td>Updated RL model, World Model trajectories, Cognition priors</td>
+        <td>Feeds World Model AND Cognition — not just RL. Daily training; hourly prior updates.</td>
+      </tr>
+      <tr>
+        <td>∥</td><td>L9: Meta-Learning (async, not in hot path)</td><td>L7 feedback batch</td>
+        <td>Prompt updates, threshold updates, architecture proposals</td>
+        <td>Never blocks a deployment. Security prompt sections SHA-256 hash-locked.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ E2E FLOW ═══ -->
+<section class="section" id="e2e-flow">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Complete End-to-End PR Flow — Every Step is a Real Operation</span>
+  </div>
+  <div class="section-body">Every step below maps to a real, executable operation. No step is decorative. Each step has a success condition, a failure path, and a timeout guard.</div>
+
+  <div class="flow-container">
+  <div class="flow">
+
+    <div class="flow-step" style="background:rgba(0,212,255,0.03)">
+      <div class="flow-num">01</div>
+      <div class="flow-icon">🔔</div>
+      <div class="flow-body">
+        <div class="flow-title">Webhook Received</div>
+        <div class="flow-detail">Bitbucket/GitHub fires <code>pull_request.opened</code> or <code>pull_request.updated</code>. Payload validated (HMAC-SHA256). Event published to <code>events:pr:incoming</code> stream. Duplicate guard: if same PR ID already in FSM, merge event updates existing record without restarting pipeline.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">&lt; 1 sec</div>
+        <div class="flow-layer">WEBHOOK</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">02</div>
+      <div class="flow-icon">🔒</div>
+      <div class="flow-body">
+        <div class="flow-title">Orchestrator: Acquire Lock + Open Trace</div>
+        <div class="flow-detail">Redis SETNX acquires PR lock. OTEL trace opened with trace_id = pr_id. PR state transitions to DETECTED. All subsequent layer operations are children of this trace — a single Jaeger query will show the complete lifecycle.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">&lt; 500ms</div>
+        <div class="flow-layer">ORCHESTRATOR</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">03</div>
+      <div class="flow-icon">🧠</div>
+      <div class="flow-body">
+        <div class="flow-title">L1: Code &amp; Infra Understanding — Build Knowledge Graph</div>
+        <div class="flow-detail">Fetch PR diff via git API (Vault injects auth token). Scan changed files, parse intent, resolve imports. Run <code>helm status</code> for all declared chart dependencies. Detect IaC drift (Terraform plan). Build Knowledge Graph (KG): nodes = files/services/infra, edges = dependencies. KG TTL = 5 min — invalidated immediately on <code>InfraChanged</code> event. Risk level computed from KG complexity + change surface. <strong>KG unavailability during canary:</strong> If KG rebuild fails (L1 timeout or git API error), Orchestrator uses the last valid KG snapshot (stored in Redis with a 30-min grace window) with a <code>stale_kg=true</code> flag. L8 runs Monte Carlo with elevated uncertainty bounds (confidence intervals widened by 20%). Canary gate thresholds tighten automatically: P(advance) threshold raised from 0.95 → 0.97 to compensate for reduced model accuracy. KG auto-refresh is triggered every time L5 detects an <code>InfraChanged</code> event — no manual intervention required.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">1–3 min</div>
+        <div class="flow-layer">LAYER 1</div>
+        <div class="flow-gate">Emits: KGReady</div>
+      </div>
+    </div>
+
+    <div class="flow-step" style="background:rgba(155,89,255,0.03)">
+      <div class="flow-num">04</div>
+      <div class="flow-icon">🎯</div>
+      <div class="flow-body">
+        <div class="flow-title">L8: Goal Alignment + World Model Risk Assessment</div>
+        <div class="flow-detail">Consumes L1 KG (will not proceed without it). Runs 500 Monte Carlo trajectories against the Bayesian causal graph of system metrics. Computes P(failure), P(SLA breach), P(cost overrun) with conformal prediction confidence intervals. Scores PR against H1 (deploy safely), H2 (uptime ≥99.9%), H3 (reduce LLM cost). Pre-computes top-3 healing plans for likely failure modes. Adjusts canary gate weight based on risk score. Meta-Cognition audits output for internal consistency before it is consumed. <strong>Non-stationarity handling:</strong> Bayesian priors are updated with a Holt-Winters exponential smoothing layer that separates trend and seasonality components from the raw metric signal — ensuring the baseline comparison accounts for daily traffic patterns, weekly cycles, and sustained metric drift. Rolling baseline window is adaptive: 1 hour for fast-changing metrics (error rate), 24 hours for slow-changing ones (latency p99 baseline).</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">30–60 sec</div>
+        <div class="flow-layer">LAYER 8</div>
+        <div class="flow-gate">Emits: RiskEnvelope</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">05</div>
+      <div class="flow-icon">🔍</div>
+      <div class="flow-body">
+        <div class="flow-title">L2a: Gitleaks + Semgrep SAST</div>
+        <div class="flow-detail">Gitleaks runs first (5–15 sec): scans entire commit history and diff for secrets, API keys, passwords. ANY match → hard block, no exceptions, no human override. Semgrep SAST: SQL injection, XSS, hardcoded crypto, insecure patterns. HIGH severity finding → block. Both tools use scan API keys injected by Vault at runtime — never baked into the pipeline image.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">1–2 min</div>
+        <div class="flow-layer">LAYER 2a</div>
+        <div class="flow-gate">Gate: 0 secrets, 0 HIGH SAST</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">06</div>
+      <div class="flow-icon">🧪</div>
+      <div class="flow-body">
+        <div class="flow-title">L2b: Mutation Testing + Contract Tests</div>
+        <div class="flow-detail">Mutmut incremental mutation testing: only mutates lines touched by this PR (not full suite — too slow). Gate: mutation score ≥80% on changed lines. Flaky tests with &gt;5% historical failure rate are quarantined before scoring — their failure does not count. Pact consumer-driven contract tests: verify all downstream services still accept the new API contract. A contract break blocks even before mutation score is checked.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">2–4 min</div>
+        <div class="flow-layer">LAYER 2b</div>
+        <div class="flow-gate">Gate: mutation ≥80%, contracts pass</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">07</div>
+      <div class="flow-icon">✅</div>
+      <div class="flow-body">
+        <div class="flow-title">L2c: Intent Review + Risk Decision (L0 Cognition)</div>
+        <div class="flow-detail">L0 Cognition selects solver based on L8 risk score and problem novelty: Heuristic (90%) / RL (9%) / LLM (0.9%) / Human (&lt;0.1%). Solver checks: code matches PR intent, no breaking changes without version bump, test coverage adequate for risk level. Verdict: APPROVED / REJECTED / NEEDS_CHANGES + reasoning chain written to QLDB. All LLM calls log token cost to QLDB per event.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">30 sec–2 min</div>
+        <div class="flow-layer">L2c + L0</div>
+        <div class="flow-gate">Gate: APPROVED</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">08</div>
+      <div class="flow-icon">📦</div>
+      <div class="flow-body">
+        <div class="flow-title">L3: Build — Install, Test, Scan, Sign, Push</div>
+        <div class="flow-detail">Merge to test branch. <code>pip install -r requirements.txt</code> (cached layers). Full pytest suite. Docker build from distroless base. Trivy CVE scan on built image — blocks on CRITICAL or HIGH. Cosign signs image (supply chain integrity). ECR push with immutable tag <code>neer-app:pr-{id}-{sha}</code>. Vault injects registry credentials at runtime — zero secrets in image. Dead-man's switch: 20-min timeout on docker build. ECR circuit breaker: 3 failures → fallback to in-cluster Harbor registry.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">8–12 min</div>
+        <div class="flow-layer">LAYER 3</div>
+        <div class="flow-gate">Gate: 0 CRITICAL CVEs, signed</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">09</div>
+      <div class="flow-icon">🧪</div>
+      <div class="flow-body">
+        <div class="flow-title">L4a: Staging Deploy + OWASP ZAP DAST</div>
+        <div class="flow-detail">Deploy to staging namespace (Vault injects k8s credentials). Run smoke tests: /health, key API endpoints. OWASP ZAP full active scan on staging URL. ZAP runs against staging — never production. Blocks prod deploy on MEDIUM+ finding. Prerequisite headroom check: verify target k8s nodes have ≥ (replicas × memory_limit × 1.2) free before canary start — prevents OOM cascade during traffic split (I08).</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">5–8 min</div>
+        <div class="flow-layer">LAYER 4a</div>
+        <div class="flow-gate">Gate: ZAP &lt; MEDIUM</div>
+      </div>
+    </div>
+
+    <div class="flow-step" style="background:rgba(255,140,0,0.03)">
+      <div class="flow-num">10</div>
+      <div class="flow-icon">📊</div>
+      <div class="flow-body">
+        <div class="flow-title">L4b: 5% Bayesian Canary — us-east-1</div>
+        <div class="flow-detail">Orchestrator acquires <code>canary:{service}</code> lock (I02 — prevents parallel PRs contaminating metrics). Signals Vault to defer secret rotation (I03). <code>kubectl apply canary-5.yaml</code> (1 of 20 pods). L5 Monitor starts streaming metrics. Bayesian posterior updated every 30 seconds. Gate advances when P(new ≥ baseline) ≥ 0.95 OR rolls back when P(new &lt; baseline) &gt; 0.90. Hard ceiling: 45 min. World Model risk score consulted on each gate evaluation.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">2–45 min</div>
+        <div class="flow-layer">LAYER 4b + L5</div>
+        <div class="flow-gate">Gate: Bayesian P≥0.95</div>
+      </div>
+    </div>
+
+    <div class="flow-step" style="background:rgba(255,140,0,0.03)">
+      <div class="flow-num">11</div>
+      <div class="flow-icon">🌐</div>
+      <div class="flow-body">
+        <div class="flow-title">L4c: 50% Multi-Region Canary — us-east-1 + us-west-2</div>
+        <div class="flow-detail">Both regions deploy 50%. Both run independent Bayesian gates. A region-specific anomaly is treated as a local infrastructure event — rollback is regional only. Canary metrics include: error rate, latency p99, CPU, memory, user satisfaction signals (NEER test pass rate). Both regions must independently pass before advancing to 100%.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">2–45 min</div>
+        <div class="flow-layer">LAYER 4c + L5</div>
+        <div class="flow-gate">Gate: both regions pass</div>
+      </div>
+    </div>
+
+    <div class="flow-step" style="background:rgba(0,200,117,0.03)">
+      <div class="flow-num">12</div>
+      <div class="flow-icon">🚀</div>
+      <div class="flow-body">
+        <div class="flow-title">L4d: 100% Rollout + PR Auto-Merge</div>
+        <div class="flow-detail">All 20 pods updated. Post-deploy health check: all pods ready within 90 seconds. Feature flags (LaunchDarkly) dark-launch new capabilities — code deployed but features gated. Orchestrator signals Vault rotation lock released. PR merged to main with signed commit. QLDB deployment record finalized. Orchestrator releases namespace lock. G1 complete.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">30–90 sec</div>
+        <div class="flow-layer">LAYER 4d</div>
+        <div class="flow-gate">State: MERGED · G1 ✓</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">∥</div>
+      <div class="flow-icon">📡</div>
+      <div class="flow-body">
+        <div class="flow-title">L5: Continuous Monitor — Parallel from Step 10, Permanent After</div>
+        <div class="flow-detail">Collects: CPU, memory, error rate, latency p99, pod restarts, queue depth, Playwright session health, RL reward trend. Three anomaly detection tiers: static threshold → 3σ moving average → Bayesian ML prediction. Publishes metric deltas to World Model every 30 sec (real-time update). Publishes anomaly events to Event Bus → consumed by L6 Healing + L4 canary gate pause signal. <strong>L5 unavailability fallback:</strong> Supervisor (see §16) detects L5 heartbeat miss within 10 sec → immediately activates static threshold rules baked into Orchestrator (CPU&gt;80%, error_rate&gt;1%, p99&gt;2s) as a metric-less canary gate fallback. Canary is held (not advanced) until L5 recovers. L6 Healing switches to heuristic-only mode. PagerDuty alert fires within 30 sec. G2 continues in degraded-but-safe mode. If L5 is down for &gt;5 min, any active canary is automatically rolled back (cannot safely advance without observability).</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">continuous</div>
+        <div class="flow-layer">LAYER 5</div>
+        <div class="flow-gate">Feeds: L4+L6+L8 · G2</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">⟳</div>
+      <div class="flow-icon">🔧</div>
+      <div class="flow-body">
+        <div class="flow-title">L6: Healing Pipeline — Triggered by L5 Anomaly Event</div>
+        <div class="flow-detail">Orchestrator receives anomaly → dispatches to L6. L6 checks pre-computed healing plans from L8 World Model first (fastest path). Then: Heuristic (90%, ~5 sec) → RL (9%, ~15 sec) → LLM (0.9%, ~45 sec) → Human (&lt;0.1%, 2–10 min). Action deduplication: if same action tried in last 3 attempts → escalate immediately, no 3rd execution (prevents circular OOM loops, I04). LLM healing: rate limit pre-check, confidence >0.85, dry-run validation before execution. Successful heal → real-time heuristic rule update. Outcome published to Event Bus → L7 Feedback. G3 achieved here.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">5 sec–10 min</div>
+        <div class="flow-layer">LAYER 6</div>
+        <div class="flow-gate">Output: healed | escalated · G3</div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">⟳</div>
+      <div class="flow-icon">📈</div>
+      <div class="flow-body">
+        <div class="flow-title">L7: Feedback &amp; RL Engine — Triggered on Terminal State</div>
+        <div class="flow-detail">Orchestrator emits terminal event (MERGED / FAILED / ROLLED_BACK). L7 collects: all layer outcomes, healing trace, canary metrics, user signals. Updates: RL PPO model (daily training on 7-day window), L8 World Model trajectory store (hourly), L0 Cognition priors (hourly). Shadow deployment: 24h shadow before new RL model enters production. KL-divergence monitor: if reward distribution shifts &gt;0.1 → auto-fallback to heuristics + alert.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">async</div>
+        <div class="flow-layer">LAYER 7</div>
+        <div class="flow-gate">Feeds: L0+L8+heuristics</div>
+      </div>
+    </div>
+
+    <div class="flow-step" style="background:rgba(155,89,255,0.03)">
+      <div class="flow-num">∥</div>
+      <div class="flow-icon">⚙️</div>
+      <div class="flow-body">
+        <div class="flow-title">L9: Meta-Learning — Async, Never Blocks Deployments</div>
+        <div class="flow-detail">Runs on L7 feedback batches. Prompt Evolver: A/B test prompt templates via Thompson sampling. Security-critical prompt sections are SHA-256 hash-locked — any L9 change to a hashed section is blocked and requires human sign-off. Model Selector: benchmarks new LLM releases weekly; auto-promotes if quality matches and cost is lower. Threshold Optimizer: adjusts alert thresholds via Bayesian optimisation on false-positive history. Architecture Proposer: monthly proposals, always require human review before any change applies.</div>
+      </div>
+      <div class="flow-meta">
+        <div class="flow-time">async</div>
+        <div class="flow-layer">LAYER 9</div>
+        <div class="flow-gate">48h shadow gate</div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</section>
+
+<!-- ═══ CLOSED LOOP ═══ -->
+<section class="section" id="closed-loop">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Closed Loop — Every Feedback Connection</span>
+  </div>
+  <div class="section-body">
+    A closed loop means every output eventually influences the inputs of the system. These are the feedback edges that make NEEROps truly autonomous and self-improving. All of these must exist simultaneously — missing any one breaks G2 or G3.
+  </div>
+
+  <div class="loop-grid">
+
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--red)">Real-time Loops (milliseconds → seconds) · G2 + G3</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L5 Monitor anomaly → <strong>L4 Canary Gate pause signal</strong> (via Event Bus). Canary does not advance if an anomaly is live — prevents deploying into a degraded system.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L5 Monitor metric delta → <strong>L8 World Model live telemetry window</strong> (every 30 sec). World Model is stale without this — risk scores become wrong within minutes of a topology change.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L6 Healing success → <strong>Heuristic Library immediate update</strong>. Same issue is never sent to LLM twice if heuristic works. LLM teaches itself out of a job.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L8 World Model risk → <strong>L4 Bayesian gate weight adjustment</strong>. High predicted risk = tighter gate thresholds before canary even starts.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L6 Action dedup check → <strong>L6 self-escalation</strong>. Detects circular healing loops before 3rd repeat — prevents OOM cascade from heal-loop (I04).</div></div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--orange)">Hourly Loops · G1 + G3</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L7 Feedback outcomes → <strong>L0 Cognition priors</strong>. Solver selection accuracy (which tier to use for which problem) improves every hour.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L7 Feedback outcomes → <strong>L8 World Model trajectory store</strong>. Simulation accuracy improves. Monte Carlo estimates get tighter.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Terraform Drift Detector → <strong>L1 IaC drift flag</strong>. L1 KG invalidated if infrastructure has drifted — World Model re-runs with current topology.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Threshold Optimizer → <strong>L5 alert thresholds</strong>. False positive rate actively managed — reduces unnecessary healing triggers.</div></div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--yellow)">Daily Loops · LLMOps</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L7 RL training → <strong>L0 Cognition RL solver</strong>. Solver quality improves daily on 7-day rolling window. New model validated in 24h shadow before promotion.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Prompt Evolver A/B result → <strong>L2 review prompt templates</strong> (non-security sections only). LLM prompts improve autonomously.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Model Selector benchmark → <strong>L0 LLM model choice</strong>. Cheaper/better model auto-promoted after 24h shadow. Reduces H3 (cost) directly.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Flaky test reporter → <strong>L2 test quality gate</strong>. Quarantined tests excluded from mutation score — gate stays reliable, not gamed.</div></div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--purple)">Human-in-the-Loop (when triggered) · G2 failsafe</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Human healing decision → <strong>Heuristic Library</strong>. Every human resolution teaches the system. Goal: eliminate future human involvement for the same failure mode.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Human code review correction → <strong>L2 review rules</strong>. Human overrides tracked; patterns extracted into heuristics.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Architecture Proposal → <strong>Human sign-off required</strong> → system architecture update. L9 proposes; humans approve.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>SLA breach (T+15min no human ACK) → <strong>Unconditional auto-rollback</strong> + QLDB SLA violation record. System protects itself regardless.</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ LAYER SPECS ═══ -->
+<section class="section" id="layer-specs">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">All Layer Specifications — Inputs, Operations, Outputs, Failures</span>
+  </div>
+
+  <table class="layer-table">
+    <thead>
+      <tr><th>Layer</th><th>Goal</th><th>Inputs (what it consumes)</th><th>Real Operations</th><th>Outputs (what it publishes)</th><th>Failure Behaviour</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>L0 Cognition</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1 · G3</td>
+        <td>Problem type, context, L8 risk score, solver scores</td>
+        <td>Score Heuristic/RL/LLM/Human solvers. Execute chosen solver. Update prediction accuracy after outcome.</td>
+        <td><code>SolverDecision</code> event with full reasoning chain written to QLDB</td>
+        <td>If all solvers fail: emit <code>CognitionFailed</code> → Orchestrator escalates to human</td>
+      </tr>
+      <tr>
+        <td>L1 Understanding</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1</td>
+        <td>PR diff, repo, k8s state, Terraform plan</td>
+        <td>File scan, intent parse, helm status checks, IaC drift, KG construction</td>
+        <td><code>KGReady</code> with full Knowledge Graph JSON, risk_level, iac_drift_detected</td>
+        <td>Partial KG on timeout → publish with <code>partial=true</code>; L8 uses reduced confidence</td>
+      </tr>
+      <tr>
+        <td>L2 Review</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1</td>
+        <td>L1 KG, L8 risk score, Vault scan API keys</td>
+        <td>Gitleaks → Semgrep → Mutmut (incremental) → Pact → pylint/mypy/black → intent match</td>
+        <td><code>ReviewVerdict</code>: APPROVED/REJECTED + full report to QLDB</td>
+        <td>Gitleaks failure: hard block. Other tool failure: circuit breaker open → heuristic rules apply</td>
+      </tr>
+      <tr>
+        <td>L3 Build</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1</td>
+        <td>L2 APPROVED, Vault registry creds</td>
+        <td>Merge → pip install → pytest → docker build (distroless) → Trivy → Cosign sign → ECR push</td>
+        <td><code>BuildComplete</code>: image_uri, cosign_digest, trivy_report, test_results</td>
+        <td>Trivy CRITICAL: hard block. Build timeout (20min): dead-man's switch triggers rollback signal</td>
+      </tr>
+      <tr>
+        <td>L4 Deploy</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1 · G2</td>
+        <td>L3 image_uri, L5 metric stream, L8 risk envelope, Vault k8s creds</td>
+        <td>Staging → ZAP → 5% canary → 50% multi-region → 100% rollout → PR merge</td>
+        <td><code>DeployComplete</code> or <code>RollbackExecuted</code> with full canary metrics to QLDB</td>
+        <td>ZAP MEDIUM+: block. k8s API timeout: dead-man's switch rollback. Bayesian rollback: immediate.</td>
+      </tr>
+      <tr>
+        <td>L5 Monitor</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G2 · G3</td>
+        <td>Prometheus metrics, Kubernetes events, user signals, OTEL traces</td>
+        <td>Static threshold checks, 3σ moving average, Bayesian ML prediction, OTEL trace analysis</td>
+        <td><code>AnomalyDetected</code> → Orchestrator; metric delta → L8; canary pause signal → L4</td>
+        <td>If Monitor itself is unhealthy: L9 circuit breaker → fallback to threshold-only rules + alert</td>
+      </tr>
+      <tr>
+        <td>L6 Healing</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G2 · G3</td>
+        <td>L5 anomaly event, L8 pre-computed plans, Heuristic Library, Vault heal creds</td>
+        <td>Action dedup check → Heuristic / RL / LLM / Human → heal execution → resolution verification</td>
+        <td><code>HealingOutcome</code> + <code>NewHeuristicRule</code> if applicable</td>
+        <td>3x same action dedup: immediate escalation to next tier. 10min watchdog: escalate regardless.</td>
+      </tr>
+      <tr>
+        <td>L7 Feedback</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1 · G2 · G3</td>
+        <td>Terminal Orchestrator event, all layer outcomes</td>
+        <td>Collect, deduplicate, score, label outcomes. Daily RL training. Drift detection. Shadow deployment.</td>
+        <td>Updated RL model, World Model trajectories, Cognition priors, new heuristic rules</td>
+        <td>RL drift detected (KL-div &gt;0.1): auto-fallback to heuristics + L9 re-training scheduled</td>
+      </tr>
+      <tr>
+        <td>L8 Reasoning Engine</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">G1 · G2 · G3</td>
+        <td>L1 KG (required), L5 live metrics (rolling 1h), L7 trajectory store</td>
+        <td>Monte Carlo simulation (500 trajectories), goal scoring, conformal prediction, Meta-Cognition audit</td>
+        <td><code>RiskEnvelope</code> with pre-computed healing plans and canary gate weight</td>
+        <td>World Model cold (no L1 input): block execution, return error. Never runs without L1 output.</td>
+      </tr>
+      <tr>
+        <td>L9 Meta-Learning</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">LLMOps</td>
+        <td>L7 feedback batches, L5 false-positive history</td>
+        <td>Prompt A/B, model benchmarking, threshold optimisation, heuristic extraction, architecture proposals</td>
+        <td>Updated prompts (non-security), updated thresholds, new heuristic rules, architecture proposals for human review</td>
+        <td>All outputs gated by 48h shadow + Meta-Cognition review. Security sections hash-locked. Human required for architecture changes.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ SECURITY ═══ -->
+<section class="section" id="security">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-title">Security Pipeline — Shift Left, Block Early, No Exceptions</span>
+  </div>
+  <div class="section-body">Security gates are ordered cheapest-first. A 5-second Gitleaks scan blocks before a 5-minute DAST scan runs. No gate is optional. No layer — including L8 and L9 — can bypass any of these gates.</div>
+
+  <table class="layer-table">
+    <thead>
+      <tr><th>Order</th><th>Tool</th><th>Stage</th><th>What It Checks</th><th>Block Condition</th><th>Time</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1st</td><td>Gitleaks</td><td>L2 (first)</td><td>Secrets, API keys, passwords in commit history and diff</td><td>ANY match → hard block, no exceptions, no override</td><td>5–15 sec</td></tr>
+      <tr><td>2nd</td><td>Semgrep SAST</td><td>L2</td><td>SQL injection, XSS, hardcoded crypto, insecure patterns</td><td>HIGH severity finding</td><td>30–90 sec</td></tr>
+      <tr><td>3rd</td><td>Trivy (image)</td><td>L3 (before push)</td><td>OS CVEs + Python package CVEs in built Docker image</td><td>CRITICAL or HIGH CVE → image not pushed</td><td>60–120 sec</td></tr>
+      <tr><td>4th</td><td>Cosign</td><td>L3 (after push)</td><td>Supply chain: signs image. Kubernetes admission controller rejects unsigned images.</td><td>Sign failure → image not pushed. k8s rejects unsigned at admission.</td><td>5 sec</td></tr>
+      <tr><td>5th</td><td>OWASP ZAP DAST</td><td>L4a (staging only)</td><td>SQL injection, auth bypass, open redirects, XSS on running application</td><td>MEDIUM+ finding → blocks prod deploy</td><td>3–6 min</td></tr>
+      <tr><td>6th</td><td>Falco (runtime)</td><td>Continuous</td><td>Kernel-level anomalies, privilege escalation, reverse shell, unexpected network connections</td><td>Kill pod immediately; trigger L6 Healing event on Event Bus</td><td>real-time</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ CANARY ═══ -->
+<section class="section" id="canary">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-title">Bayesian Canary — A Statistical Decision, Not a Timer</span>
+  </div>
+  <div class="section-body">The gate advances when the data is conclusive, not when the clock runs out. This is the core of G1 — bad deploys are caught at 5% because the gate is a real statistical test, not a waiting period.</div>
+
+  <pre><span class="cm"># Bayesian canary gate — runs every 30 seconds during canary phase</span>
+<span class="kw">def</span> evaluate_gate(baseline_metrics, canary_metrics, prior_alpha=<span class="val">1</span>, prior_beta=<span class="val">1</span>):
+    <span class="cm"># Beta-Binomial model on error counts</span>
+    canary_successes   = canary_metrics.requests - canary_metrics.errors
+    baseline_successes = baseline_metrics.requests - baseline_metrics.errors
+
+    posterior_canary   = Beta(prior_alpha + canary_successes,   prior_beta + canary_metrics.errors)
+    posterior_baseline = Beta(prior_alpha + baseline_successes, prior_beta + baseline_metrics.errors)
+
+    <span class="cm"># Monte Carlo comparison (10,000 samples)</span>
+    samples_canary   = posterior_canary.sample(<span class="val">10000</span>)
+    samples_baseline = posterior_baseline.sample(<span class="val">10000</span>)
+
+    p_canary_better = (samples_canary > samples_baseline).mean()          <span class="cm"># P(canary ≥ baseline)</span>
+    p_canary_worse  = (samples_canary < samples_baseline * <span class="val">0.99</span>).mean()  <span class="cm"># P(canary clearly worse)</span>
+
+    <span class="cm"># L8 World Model adjusts these thresholds based on risk score</span>
+    <span class="kw">if</span> p_canary_better >= <span class="val">0.95</span>:  <span class="kw">return</span> <span class="str">"ADVANCE"</span>   <span class="cm"># conclusive: new ≥ baseline</span>
+    <span class="kw">if</span> p_canary_worse  >  <span class="val">0.90</span>:  <span class="kw">return</span> <span class="str">"ROLLBACK"</span>  <span class="cm"># conclusive: new is worse</span>
+    <span class="kw">if</span> elapsed_minutes >= <span class="val">45</span>:    <span class="kw">return</span> <span class="str">"ESCALATE"</span>  <span class="cm"># hard ceiling: not conclusive after 45min</span>
+    <span class="kw">return</span> <span class="str">"HOLD"</span>                                     <span class="cm"># not enough data yet — wait</span></pre>
+
+  <table class="layer-table">
+    <thead><tr><th>Phase</th><th>Traffic</th><th>Regions</th><th>Advance Condition</th><th>Rollback Condition</th><th>Hard Ceiling</th></tr></thead>
+    <tbody>
+      <tr><td>Staging</td><td>0%</td><td>Staging ns</td><td>All smoke tests + ZAP pass</td><td>Any smoke test fail OR ZAP MEDIUM+</td><td>30 min</td></tr>
+      <tr><td>Canary 5%</td><td>5%</td><td>us-east-1</td><td>P(canary ≥ baseline) ≥ 0.95</td><td>P(canary worse) &gt; 0.90 OR error_rate &gt; 1%</td><td>45 min</td></tr>
+      <tr><td>Canary 50%</td><td>50%</td><td>us-east-1 + us-west-2</td><td>Both regions independently pass gate</td><td>Either region: P(worse) &gt; 0.90</td><td>45 min</td></tr>
+      <tr><td>Full 100%</td><td>100%</td><td>All</td><td>All pods healthy, post-deploy smoke pass</td><td>Error rate &gt; 0.5% within 5min of full rollout</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ HEALING ═══ -->
+<section class="section" id="healing">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <span class="section-title">Healing Pipeline — G3 in Detail</span>
+  </div>
+
+  <div class="honest-box">
+    <strong>How healing achieves G3:</strong> The four tiers are not magic — they are a cost-ordered escalation ladder. Heuristic rules cover known, repeatable failures at near-zero cost. RL covers variations. LLM covers novel problems — but it costs money, so it is the third resort. Human is last and rarest because humans are slow and expensive; the goal is to eliminate human involvement over time by converting every human decision into a heuristic rule. The circular healing loop detection (action dedup) is the most critical safety feature — without it, a system can scale pods forever in response to its own OOM-caused restarts.
+  </div>
+
+  <div class="heal-pipeline">
+    <div class="heal-stage" style="background:rgba(0,200,117,0.04)">
+      <div class="heal-stage-head" style="color:var(--green)">HEURISTIC</div>
+      <div class="heal-pct" style="color:var(--green)">90%</div>
+      <div class="heal-time">~5 sec · $0.0001</div>
+      <div class="heal-item">Pod CrashLoopBackOff → restart pod</div>
+      <div class="heal-item">OOM Kill → increase memory limit ×2</div>
+      <div class="heal-item">CPU throttle → increase CPU limit ×2</div>
+      <div class="heal-item">High latency → scale replicas +2</div>
+      <div class="heal-item">Error rate &gt;1% → rollback version</div>
+      <div class="heal-item">Disk full &gt;85% → log cleanup</div>
+      <div class="heal-item">Queue depth &gt;100 → HPA scale-out</div>
+      <div class="heal-item">Playwright crash → restart session</div>
+      <div class="heal-item">Image pull backoff → retry + backoff</div>
+    </div>
+    <div class="heal-stage" style="background:rgba(0,152,204,0.04)">
+      <div class="heal-stage-head" style="color:var(--cyan2)">RL MODEL</div>
+      <div class="heal-pct" style="color:var(--cyan)">9%</div>
+      <div class="heal-time">~15 sec · $0.001</div>
+      <div class="heal-item">Variations of known patterns</div>
+      <div class="heal-item">e.g. WebKit mem at 2.8GB (not 3GB)</div>
+      <div class="heal-item">Input: problem type, metrics</div>
+      <div class="heal-item">Output: action + confidence score</div>
+      <div class="heal-item">Only executes if confidence &gt;0.7</div>
+      <div class="heal-item">Trained on 5,000+ historical events</div>
+      <div class="heal-item">KL-div &gt;0.1 → fallback to heuristic</div>
+    </div>
+    <div class="heal-stage" style="background:rgba(255,214,0,0.03)">
+      <div class="heal-stage-head" style="color:var(--yellow)">LLM</div>
+      <div class="heal-pct" style="color:var(--yellow)">0.9%</div>
+      <div class="heal-time">~45 sec · $0.05</div>
+      <div class="heal-item">Novel, never-seen problems only</div>
+      <div class="heal-item">Complex multi-factor root causes</div>
+      <div class="heal-item">LLM analyzes logs + metrics + state</div>
+      <div class="heal-item">Plan dry-run validated before exec</div>
+      <div class="heal-item">Only executes if confidence &gt;0.85</div>
+      <div class="heal-item">Success → NewHeuristicRule created</div>
+      <div class="heal-item">Rate limit pre-check before every call</div>
+      <div class="heal-item">20% token budget reserved for CRIT</div>
+    </div>
+    <div class="heal-stage" style="background:rgba(255,59,59,0.04)">
+      <div class="heal-stage-head" style="color:var(--red)">HUMAN</div>
+      <div class="heal-pct" style="color:var(--red)">&lt;0.1%</div>
+      <div class="heal-time">2–10 min · $5.00</div>
+      <div class="heal-item">All automated healing failed</div>
+      <div class="heal-item">High-stakes (&gt;$100k impact)</div>
+      <div class="heal-item">Business judgment required</div>
+      <div class="heal-item">T+10 safe rollback attempt</div>
+      <div class="heal-item">T+15 unconditional rollback</div>
+      <div class="heal-item">Human decision → heuristic rule</div>
+      <div class="heal-item">QLDB SLA breach record if no ACK</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LLMOPS ═══ -->
+<section class="section" id="llmops">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <span class="section-title">LLMOps Integration — Every LLM Role Serves a Goal</span>
+  </div>
+  <div class="section-body">
+    LLMs are used in five distinct operational roles. Each role has a concrete trigger condition, explicit cost controls, confidence gates, fallback paths, and a feedback loop that teaches the system to need LLMs less over time. LLMs do not run by default — they run only when cheaper solvers have been exhausted or the role explicitly requires them.
+  </div>
+
+  <table class="layer-table">
+    <thead><tr><th>LLM Role</th><th>Serves Goal</th><th>Layer</th><th>Trigger</th><th>Guard Rails</th><th>Output + Feedback</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Novel Failure Diagnosis</td>
+        <td style="color:var(--yellow);font-family:var(--mono);font-size:9px;">G3</td>
+        <td>L6 Healing · Tier 3</td>
+        <td>Heuristic match score &lt;0.5 AND RL confidence &lt;0.7. Problem never seen before.</td>
+        <td>Rate limit pre-check. 20% daily token budget reserved for CRITICAL. Confidence &gt;0.85 to execute. Dry-run plan validation before execution.</td>
+        <td>Healing action plan. If success → <code>NewHeuristicRule</code> emitted immediately. Same problem never goes to LLM twice.</td>
+      </tr>
+      <tr>
+        <td>Code &amp; Intent Review</td>
+        <td style="color:var(--green);font-family:var(--mono);font-size:9px;">G1</td>
+        <td>L2 Review · L0 Cognition</td>
+        <td>L0 selects LLM solver when problem novelty is high (&lt;0.9% of reviews). Heuristics handle 90%.</td>
+        <td>L8 risk score required before LLM call. Reasoning chain written to QLDB. No LLM call if Gitleaks or Semgrep already blocked.</td>
+        <td>APPROVED / REJECTED / NEEDS_CHANGES with structured reasoning. Human override tracked and extracted as heuristic.</td>
+      </tr>
+      <tr>
+        <td>Risk Assessment (L8)</td>
+        <td style="color:var(--cyan);font-family:var(--mono);font-size:9px;">G1 · G2</td>
+        <td>L8 Autonomous Reasoning Engine</td>
+        <td>Every PR, after L1 KG is ready. LLM assists trajectory scoring for edge cases beyond PyMC3 Bayesian network.</td>
+        <td>Requires L1 KG — will not run without it. Meta-Cognition audits output for internal consistency. L8 LLM budget separate from healing budget.</td>
+        <td><code>RiskEnvelope</code>: goal_alignment_score, risk_score, pre-computed healing plans. Consumed by canary gate weight.</td>
+      </tr>
+      <tr>
+        <td>Prompt Evolution (L9)</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:9px;">LLMOps</td>
+        <td>L9 Meta-Learning · async</td>
+        <td>Daily: L7 feedback batch identifies prompt templates performing &lt;3% below baseline.</td>
+        <td>Thompson sampling A/B test. 48h shadow before promotion. Security-critical sections SHA-256 hash-locked — LLM cannot modify them. Human sign-off required for hash-locked sections.</td>
+        <td>Updated non-security prompt templates. Improvement and token cost delta recorded to QLDB.</td>
+      </tr>
+      <tr>
+        <td>Model Selection (L9)</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:9px;">LLMOps · G3 cost</td>
+        <td>L9 Meta-Learning · weekly</td>
+        <td>New model release detected. Or: current model cost-per-event exceeds threshold.</td>
+        <td>24h shadow benchmark. Must match or exceed current model quality on held-out eval set. Rollback: if quality drops &gt;2%, revert within 1h. All benchmark results written to QLDB.</td>
+        <td>Cheaper/better model auto-promoted. L0 Cognition model pointer updated. Cost reduction feeds H3 goal metric.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="loop-grid">
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--yellow)">LLM Cost Controls (H3 — Reduce LLM Cost)</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Daily token budget enforced per LLM role. CRITICAL healing tier: 20% budget reserved. All LLM spend written to QLDB per event — cost is a measurable goal, not a nice-to-have.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>Rate limit pre-check before every LLM call. On budget exhaustion: escalate to human with full log context — engineer gets all information even without LLM diagnosis. System degrades gracefully.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Model Selector actively moves to cheaper models when benchmarks show equivalent quality. Cost reduction measured continuously against H3 baseline.</div></div>
+    </div>
+    <div class="loop-card">
+      <div class="loop-card-title" style="color:var(--purple)">LLM Self-Improvement Loop</div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>LLM heals a novel problem → <code>NewHeuristicRule</code> emitted → same problem handled by heuristic forever after at near-zero cost. LLM continuously teaches itself out of a job. This is the correct direction.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L9 Prompt Evolver improves the very prompts used for healing and review. System prompt quality improves without human prompt engineering effort.</div></div>
+      <div class="loop-item"><span class="loop-arrow">→</span><div>L7 Feedback measures LLM decision quality per event. KL-divergence &gt;0.1 → auto-fallback to heuristics + L9 re-training scheduled. System detects and self-corrects LLM quality drift.</div></div>
+    </div>
+  </div>
+
+  <pre><span class="cm"># LLM healing tier — rate limit + confidence guard before execution</span>
+<span class="kw">def</span> llm_healing_tier(anomaly, llm_client, heuristic_lib, rl_model):
+    <span class="cm"># 1. Check if heuristic or RL can handle it first</span>
+    heuristic = heuristic_lib.match(anomaly)
+    <span class="kw">if</span> heuristic.score >= <span class="val">0.5</span>: <span class="kw">return</span> heuristic_lib.execute(heuristic)
+
+    rl_action = rl_model.predict(anomaly)
+    <span class="kw">if</span> rl_action.confidence >= <span class="val">0.7</span>: <span class="kw">return</span> rl_model.execute(rl_action)
+
+    <span class="cm"># 2. LLM tier: rate limit + budget pre-check</span>
+    <span class="kw">if</span> llm_client.remaining_tokens() < CRITICAL_RESERVE <span class="kw">and</span> anomaly.priority != <span class="str">'CRITICAL'</span>:
+        <span class="kw">return</span> escalate_to_human(anomaly, reason=<span class="str">'llm_budget_exhausted'</span>)
+
+    <span class="cm"># 3. Build context: logs + metrics + current state</span>
+    plan = llm_client.diagnose(anomaly.logs, anomaly.metrics, anomaly.k8s_state)
+    <span class="kw">if</span> plan.confidence < <span class="val">0.85</span>: <span class="kw">return</span> escalate_to_human(anomaly, reason=<span class="str">'llm_low_confidence'</span>)
+
+    <span class="cm"># 4. Dry-run validation before any execution</span>
+    dry_run_result = k8s_client.dry_run(plan.actions)
+    <span class="kw">if not</span> dry_run_result.ok: <span class="kw">return</span> escalate_to_human(anomaly, reason=<span class="str">'dry_run_failed'</span>)
+
+    <span class="cm"># 5. Execute and watch for resolution</span>
+    outcome = execute_and_verify(plan.actions, timeout=<span class="val">600</span>)
+
+    <span class="cm"># 6. On success: immediately create heuristic so LLM never handles this again</span>
+    <span class="kw">if</span> outcome.resolved:
+        event_bus.publish(<span class="str">'NewHeuristicRule'</span>, rule=extract_rule(anomaly, plan))
+
+    <span class="kw">return</span> outcome</pre>
+</section>
+
+<!-- ═══ AUTONOMOUS REASONING ENGINE ═══ -->
+<section class="section" id="reasoning-engine">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <span class="section-title">Autonomous Reasoning Engine (L8 + L9) — What Is Real vs. Aspirational</span>
+  </div>
+
+  <div class="honest-box">
+    <strong>Honest framing:</strong> "Autonomous Reasoning" here means goal-directed operation with a world model — not general intelligence. The World Model is a Bayesian network over known system metrics, not a language model reasoning about arbitrary problems. The Goal Engine is a multi-objective reward function over measurable engineering goals. This is real and implementable today. What is NOT in this version: natural language goal specification, formal verification of self-changes, counterfactual reasoning. Those are future candidates.
+  </div>
+
+  <table class="layer-table">
+    <thead><tr><th>Component</th><th>Serves Goal</th><th>What It Does (Real, Implementable)</th><th>Technology (Real)</th><th>What It Does NOT Do</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>World Model</td>
+        <td style="color:var(--cyan);font-family:var(--mono);font-size:9px;">G1 · G2</td>
+        <td>Maintains a Bayesian causal graph of system metrics. Runs Monte Carlo simulation to estimate P(failure) for a proposed deployment. Updates from live L5 telemetry every 30 seconds — never stale by more than 30s.</td>
+        <td>PyMC3 Bayesian Network. NumPy Monte Carlo (500 samples). Rolling 1-hour telemetry window in Redis.</td>
+        <td>Does not understand code semantics. Does not reason about business logic. Cannot model unknown failure modes it has never seen.</td>
+      </tr>
+      <tr>
+        <td>Goal Engine</td>
+        <td style="color:var(--green);font-family:var(--mono);font-size:9px;">G1 · G2 · G3</td>
+        <td>Scores every deployment decision against 3 measurable engineering goals: (H1) deploy safely, (H2) maintain uptime ≥99.9%, (H3) reduce LLM cost. Discounted reward over time horizons. Actions: advance, hold, rollback, escalate.</td>
+        <td>PPO policy network (PyTorch). 3-dimensional reward function. Trained on deployment outcomes from L7 Feedback.</td>
+        <td>Does not set business goals. Does not understand product strategy. Cannot evaluate goals not expressible as system metrics.</td>
+      </tr>
+      <tr>
+        <td>Meta-Cognition</td>
+        <td style="color:var(--text3);font-family:var(--mono);font-size:9px;">Safety</td>
+        <td>Audits L8 outputs for internal consistency. Flags if a decision contradicts the goal stack. Invalidates heuristic rules not validated in 30+ days. Prevents stale rules from accumulating in the library.</td>
+        <td>Rule-based consistency checker + statistical anomaly detection on L8 confidence scores.</td>
+        <td>Does not detect all reasoning errors. Cannot audit LLM reasoning for factual correctness. Not a formal verifier.</td>
+      </tr>
+      <tr>
+        <td>L9 Prompt Evolver</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:9px;">LLMOps</td>
+        <td>A/B tests LLM prompt templates. Uses Thompson sampling to allocate traffic between variants. Promotes winner after 24h shadow if &gt;3% improvement. Security-critical sections SHA-256 hash-locked from mutation.</td>
+        <td>Thompson sampling (scipy). Shadow deployment via feature flag. SHA-256 hash on security-critical prompt sections.</td>
+        <td>Cannot improve security gate logic. Cannot modify alert thresholds without L5 evidence. Security sections constitutionally locked — human sign-off required for any change.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</section>
+
+<!-- ═══ COST INTELLIGENCE ═══ -->
+<section class="section" id="cost-intelligence">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <span class="section-title">Cost Intelligence Layer — Minimize AI Inference Spend Without Sacrificing Autonomy <span class="tag tag-new">v9.0</span></span>
+  </div>
+  <div class="section-body">
+    NEEROps is an autonomous platform that uses AI inference. Uncontrolled AI spend destroys the business case for autonomy. The Cost Intelligence Layer is not a feature — it is a cross-cutting constraint that governs how every layer decides whether to use AI, which tier of AI to use, and when to stop paying for AI entirely because a deterministic solution already exists. Every strategy below maps directly to one or more layers and has a concrete implementation path. None of these are optional optimizations; they are architectural requirements for sustainable Level 4 operation.
+  </div>
+
+  <div class="honest-box">
+    <strong>Why this section exists separately from LLMOps (§10):</strong> LLMOps describes <em>how</em> LLMs are operated when they run. Cost Intelligence describes <em>whether</em> they run at all, and what runs instead. These are different concerns. LLMOps is a subset of Cost Intelligence — but caching, heuristics, embeddings, local models, and incremental analysis have nothing to do with LLM operation; they exist to make LLM calls unnecessary.
+  </div>
+
+  <div class="goal-box">
+    <strong>Goal alignment:</strong> H3 (reduce LLM cost) is an explicit sub-goal of the RL reward function in L8. Every strategy in this section directly reduces the frequency of LLM API calls. The result is measurable: a system where heuristics resolve 90% of events, embeddings resolve another ~6%, and LLMs see only the remaining ~4% of genuinely novel problems.
+  </div>
+
+  <!-- 7 STRATEGIES GRID -->
+  <div class="cost-strategy-grid">
+
+    <div class="cost-card" style="border-top-color:var(--green)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--green)">1</div>
+        <div class="cost-card-label" style="color:var(--green)">Deterministic First</div>
+      </div>
+      <div class="cost-card-body">
+        Before any probabilistic inference runs, the system asks: <em>is there a deterministic answer?</em> If the anomaly matches a known signature exactly, the heuristic fires — no model invoked. This is enforced structurally at L0 Cognition: the solver selection ladder requires a heuristic score &lt;0.5 before RL is considered, and RL confidence &lt;0.7 before LLM is considered. The Orchestrator's circuit breakers and dead-man's switches are entirely deterministic — they never invoke a model.
+      </div>
+      <div class="cost-card-where">
+        Enforced at: L0 Cognition (solver ladder) · L6 Healing (heuristic tier 1) · Orchestrator (all FSM transitions) · L5 Monitor (static threshold tier 1)<br>
+        Already implemented: 90% of healing events resolve here. Zero AI cost.
+      </div>
+      <span class="cost-card-status cost-status-exists">ALREADY STRUCTURAL</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--cyan)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--cyan)">2</div>
+        <div class="cost-card-label" style="color:var(--cyan)">Caching — Reuse Results</div>
+      </div>
+      <div class="cost-card-body">
+        The Knowledge Graph (L1) is cached with a 5-minute TTL in Redis — this prevents redundant full-repo scans for every PR touching the same service. L8 World Model pre-computed healing plans are also cached per anomaly signature. However, <strong>LLM response caching is currently missing</strong>: two near-identical anomalies that both escape the heuristic and RL tiers will each invoke a fresh LLM call. A semantic response cache (keyed by embedding of the anomaly context) must intercept L6 LLM calls before the API is hit.
+      </div>
+      <div class="cost-card-where">
+        KG cache: L1 → Redis (TTL=300s, invalidated on InfraChanged)<br>
+        World Model plan cache: L8 → Redis (keyed by risk_envelope_hash)<br>
+        <strong>NEW: LLM response cache: Redis hash of embedding(anomaly_context) → cached_response (TTL=24h)</strong>
+      </div>
+      <span class="cost-card-status cost-status-new">PARTIAL → EXTENDED v9.0</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--yellow)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--yellow)">3</div>
+        <div class="cost-card-label" style="color:var(--yellow)">Heuristics — Encode Known Solutions</div>
+      </div>
+      <div class="cost-card-body">
+        Every LLM-resolved incident produces a <code>NewHeuristicRule</code> event. Every human-resolved incident is extracted into a rule. But the Heuristic Library itself — its schema, persistence, invalidation policy, and query mechanism — has never been formally specified. It is referenced 15+ times in the architecture as if it exists, but without a spec it cannot be implemented consistently. See Heuristic Library Specification below.
+      </div>
+      <div class="cost-card-where">
+        Written by: L6 (on LLM/human heal success) · L9 (pattern extraction from feedback batches)<br>
+        Read by: L0 Cognition (solver scoring) · L6 Healing (tier 1 lookup) · L8 (risk modifier)<br>
+        Invalidated by: Meta-Cognition (30+ day stale rules) · L9 Threshold Optimizer
+      </div>
+      <span class="cost-card-status cost-status-new">SPEC ADDED v9.0</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--purple)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--purple)">4</div>
+        <div class="cost-card-label" style="color:var(--purple)">Embeddings — Semantic Lookup</div>
+      </div>
+      <div class="cost-card-body">
+        Currently absent. Before escalating to LLM, L6 Healing should compute a dense embedding of the current anomaly context (error signature + metric state) and perform a cosine similarity search against all past LLM-resolved incidents stored with their embeddings. If similarity &gt;0.92, the cached resolution is replayed instead of invoking the LLM. This eliminates LLM calls for incidents that are semantically identical to past events but differ in surface string representation (e.g., different pod names, different timestamps).
+      </div>
+      <div class="cost-card-where">
+        NEW component: EmbeddingCache service (pgvector on PostgreSQL, or Redis VSS)<br>
+        Index: (embedding VECTOR(1536), anomaly_id, resolution_action, confidence, timestamp)<br>
+        Query: SELECT resolution_action WHERE cosine_similarity(embedding, query_vec) &gt; 0.92<br>
+        Written on: every successful LLM heal → embed(anomaly_context) + store resolution
+      </div>
+      <span class="cost-card-status cost-status-new">NEW COMPONENT v9.0</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--orange)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--orange)">5</div>
+        <div class="cost-card-label" style="color:var(--orange)">Local Models — Cheap Inference</div>
+      </div>
+      <div class="cost-card-body">
+        The current ladder is: Heuristic → RL → Full LLM API. There is a gap between RL (handles variations of <em>known</em> patterns) and full LLM (handles genuinely novel problems). A fine-tuned small local model (e.g., a 7B parameter model quantized to ONNX, served in-cluster via llama.cpp or Ollama) can handle medium-complexity incidents — known failure families with slight variations in context — at near-zero marginal cost with &lt;5 second latency. This is distinct from RL: RL is a policy network scoring discrete actions; the local model can produce free-text diagnosis and action plans for a wider class of problems.
+      </div>
+      <div class="cost-card-where">
+        NEW tier: inserted between RL and Full LLM API in L6 healing ladder<br>
+        Serve: Ollama in-cluster (dedicated GPU node or CPU-only for small models)<br>
+        Trigger: RL confidence &lt;0.7 AND heuristic match &lt;0.5 AND embedding similarity &lt;0.92<br>
+        Cost: ~$0.002/call vs $0.05 for full LLM API · Latency: ~10 sec
+      </div>
+      <span class="cost-card-status cost-status-new">NEW TIER v9.0</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--red)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--red)">6</div>
+        <div class="cost-card-label" style="color:var(--red)">Risk-Triggered Escalation</div>
+      </div>
+      <div class="cost-card-body">
+        Only hard cases reach the full LLM API. This is already partially implemented through L0 Cognition's solver ladder and the LLM rate-limit reserve (20% token budget for CRITICAL). But the <em>risk threshold that gates LLM access</em> is not documented as a first-class policy — it is implied by solver confidence scores. v9.0 makes this explicit: the Orchestrator enforces a hard policy that LLM escalation requires both (a) anomaly severity ≥ HIGH or novelty score &gt;0.6 AND (b) all cheaper tiers have returned confidence &lt;threshold. This policy is written to QLDB on every LLM call as a cost-governance record.
+      </div>
+      <div class="cost-card-where">
+        Gating policy enforced at: L0 Cognition before dispatching LLM solver<br>
+        Required conditions: heuristic_match &lt;0.5 AND rl_confidence &lt;0.7 AND local_model_confidence &lt;0.8 AND (severity ≥ HIGH OR novelty &gt;0.6)<br>
+        QLDB record: every LLM call logs tier_justification + cost estimate
+      </div>
+      <span class="cost-card-status cost-status-new">FORMALIZED v9.0</span>
+    </div>
+
+    <div class="cost-card" style="border-top-color:var(--cyan2)">
+      <div class="cost-card-head">
+        <div class="cost-card-rank" style="color:var(--cyan2)">7</div>
+        <div class="cost-card-label" style="color:var(--cyan2)">Incremental Analysis</div>
+      </div>
+      <div class="cost-card-body">
+        L2 mutation testing already runs incrementally (only mutates lines changed by this PR). However, <strong>L1 Knowledge Graph rebuilds are currently full-graph</strong>: every KG refresh re-scans all files and infra nodes, even if only 2 files changed. For a large monorepo this is expensive in both time and compute. v9.0 adds incremental KG diffing: L1 computes a <em>change delta</em> from the PR diff and re-evaluates only the affected subgraph — nodes whose dependencies include changed files. Unchanged subgraph nodes are promoted from the previous KG snapshot with a freshness timestamp. L8 Monte Carlo only re-simulates trajectories affected by the delta.
+      </div>
+      <div class="cost-card-where">
+        NEW: L1 KG diff engine: changed_files = git diff --name-only HEAD~1 → recompute subgraph(changed_files)<br>
+        Unchanged nodes: promoted from kg_cache[prev] with stale_flag=false<br>
+        L2 mutation testing: already incremental (mutmut --since HEAD~1) — no change needed<br>
+        L8: re-runs Monte Carlo only on trajectories touching delta nodes (reduces simulation cost ~60–80% for small PRs)
+      </div>
+      <span class="cost-card-status cost-status-new">NEW IN L1 + L8 v9.0</span>
+    </div>
+
+  </div>
+
+  <!-- HEURISTIC LIBRARY SPEC -->
+  <div class="section-header" style="margin-top:8px">
+    <span class="section-num" style="font-size:11px">11.1</span>
+    <span class="section-title" style="font-size:14px">Heuristic Library — Formal Specification</span>
+  </div>
+  <div class="section-body">
+    The Heuristic Library is the most referenced but least specified component in the architecture. It is mentioned in L0, L6, L7, L9, and the closed-loop connections — but never defined. Without a schema and lifecycle policy, implementations will diverge. This is the authoritative spec.
+  </div>
+
+  <div class="heuristic-spec">
+    <div class="heuristic-spec-head">Heuristic Library — Data Schema + Lifecycle</div>
+    <div class="heuristic-row header">
+      <div class="heuristic-cell">Field</div>
+      <div class="heuristic-cell">Type / Constraint</div>
+      <div class="heuristic-cell">Purpose</div>
+      <div class="heuristic-cell">Owner</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">rule_id</div>
+      <div class="heuristic-cell">UUID · immutable</div>
+      <div class="heuristic-cell">Stable identifier — referenced in QLDB audit records for every match</div>
+      <div class="heuristic-cell">System-generated</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">anomaly_signature</div>
+      <div class="heuristic-cell">JSON pattern (exact + wildcard)</div>
+      <div class="heuristic-cell">Matching criteria: metric name, threshold, service, optional pod pattern</div>
+      <div class="heuristic-cell">L6 / L9</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">action</div>
+      <div class="heuristic-cell">Typed enum + params</div>
+      <div class="heuristic-cell">Concrete action: scale_replicas(+2), restart_pod, rollback, increase_memory_limit(×2), log_cleanup</div>
+      <div class="heuristic-cell">L6 / Human</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">confidence</div>
+      <div class="heuristic-cell">float [0.0–1.0]</div>
+      <div class="heuristic-cell">L0 uses this to score the heuristic solver. Threshold &gt;0.5 for auto-execute. Below → RL tier.</div>
+      <div class="heuristic-cell">L7 Feedback</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">success_count / total_count</div>
+      <div class="heuristic-cell">int · updated on every match</div>
+      <div class="heuristic-cell">L7 uses success_rate = success/total to adjust confidence over time</div>
+      <div class="heuristic-cell">L7 Feedback</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">source</div>
+      <div class="heuristic-cell">enum: LLM_DERIVED · HUMAN_DERIVED · RL_PROMOTED · MANUAL</div>
+      <div class="heuristic-cell">Audit trail — LLM-derived rules are subject to human review after 7 days if confidence &lt;0.85</div>
+      <div class="heuristic-cell">L6 / L9</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">last_validated_at</div>
+      <div class="heuristic-cell">timestamp · required</div>
+      <div class="heuristic-cell">Meta-Cognition invalidates rules not validated (matched + succeeded) in 30+ days. Stale rules never silently accumulate.</div>
+      <div class="heuristic-cell">Meta-Cognition</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">safety_constraint</div>
+      <div class="heuristic-cell">optional enum: S1–S8</div>
+      <div class="heuristic-cell">If set, action requires the corresponding safety constraint to be satisfied before execution. S7 (circular loop guard) applies to all scale actions automatically.</div>
+      <div class="heuristic-cell">L6 / Orchestrator</div>
+    </div>
+    <div class="heuristic-row">
+      <div class="heuristic-cell">embedding</div>
+      <div class="heuristic-cell">VECTOR(1536) · nullable</div>
+      <div class="heuristic-cell">Dense embedding of anomaly_signature text. Used by EmbeddingCache (§11 strategy 4) for semantic similarity lookup before LLM escalation.</div>
+      <div class="heuristic-cell">EmbeddingCache</div>
+    </div>
+  </div>
+
+  <pre><span class="cm"># Heuristic Library — storage and query implementation</span>
+<span class="cm"># PostgreSQL table: heuristics (pgvector extension for embedding column)</span>
+
+<span class="kw">class</span> HeuristicRule(BaseModel):
+    rule_id:           UUID
+    anomaly_signature: dict               <span class="cm"># JSON pattern with wildcard support</span>
+    action:            HealingAction      <span class="cm"># typed: scale_replicas | restart_pod | rollback | ...</span>
+    confidence:        float              <span class="cm"># 0.0–1.0; &gt;0.5 required for auto-execute</span>
+    success_count:     int = 0
+    total_count:       int = 0
+    source:            RuleSource         <span class="cm"># LLM_DERIVED | HUMAN_DERIVED | RL_PROMOTED | MANUAL</span>
+    last_validated_at: datetime
+    safety_constraint: Optional[str]      <span class="cm"># S1–S8 reference; S7 auto-applied to all scale actions</span>
+    embedding:         Optional[List[float]]  <span class="cm"># 1536-dim for semantic lookup</span>
+
+<span class="kw">def</span> lookup_heuristic(anomaly: AnomalyEvent) -> Optional[HeuristicRule]:
+    <span class="cm"># 1. Exact signature match (fastest — O(1) with Redis hash)</span>
+    exact = redis.hget(<span class="str">"heuristics:exact"</span>, anomaly.signature_hash)
+    <span class="kw">if</span> exact <span class="kw">and</span> exact.confidence > <span class="val">0.5</span>: <span class="kw">return</span> exact
+
+    <span class="cm"># 2. Semantic embedding match (pgvector cosine similarity)</span>
+    query_vec = embed(anomaly.context_text)
+    result = db.execute(<span class="str">"""
+        SELECT * FROM heuristics
+        WHERE 1 - (embedding &lt;=&gt; %s) > 0.92
+          AND last_validated_at > NOW() - INTERVAL '30 days'
+        ORDER BY confidence DESC LIMIT 1
+    """</span>, [query_vec])
+    <span class="kw">return</span> result.first()  <span class="cm"># None if no match → escalate to RL tier</span>
+
+<span class="kw">def</span> write_heuristic(anomaly: AnomalyEvent, action: HealingAction, source: RuleSource):
+    rule = HeuristicRule(
+        rule_id=uuid4(), anomaly_signature=anomaly.to_pattern(),
+        action=action, confidence=<span class="val">0.7</span>, source=source,
+        last_validated_at=datetime.utcnow(),
+        embedding=embed(anomaly.context_text)
+    )
+    db.insert(<span class="str">"heuristics"</span>, rule)
+    redis.hset(<span class="str">"heuristics:exact"</span>, anomaly.signature_hash, rule)  <span class="cm"># fast path cache</span>
+    ctx.logger.write(<span class="str">"NewHeuristicRule"</span>, rule_id=rule.rule_id, source=source)  <span class="cm"># QLDB</span></pre>
+
+  <!-- EMBEDDING CACHE FLOW -->
+  <div class="section-header" style="margin-top:8px">
+    <span class="section-num" style="font-size:11px">11.2</span>
+    <span class="section-title" style="font-size:14px">Embedding Semantic Cache — Decision Flow Before LLM Escalation</span>
+  </div>
+  <div class="section-body">
+    The embedding cache intercepts the path between RL/local-model failure and full LLM API call. It answers the question: "Have we resolved a semantically similar problem before?" — using vector similarity rather than exact string matching. This single component is estimated to reduce LLM API calls by 40–60% in mature deployments where the heuristic library has accumulated 3+ months of incidents.
+  </div>
+
+  <div class="embed-flow">
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--red)">Anomaly Detected</div>
+      <div class="embed-node-body">L5 publishes AnomalyEvent to Event Bus</div>
+    </div>
+    <div class="embed-arrow">→</div>
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--green)">① Heuristic Lookup</div>
+      <div class="embed-node-body">Exact signature match in Redis hash</div>
+    </div>
+    <div class="embed-arrow hit">→ HIT (90%)</div>
+    <div class="embed-node" style="border-top-color:var(--green);border-top-width:2px">
+      <div class="embed-node-title" style="color:var(--green)">EXECUTE ACTION</div>
+      <div class="embed-node-body">~5 sec · ~$0.0001</div>
+    </div>
+  </div>
+  <div class="embed-flow">
+    <div class="embed-node" style="opacity:0.3">Anomaly Detected</div>
+    <div class="embed-arrow" style="opacity:0.3">→</div>
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--cyan)">② RL Policy</div>
+      <div class="embed-node-body">Known pattern variations; confidence &gt;0.7</div>
+    </div>
+    <div class="embed-arrow hit">→ HIT (9%)</div>
+    <div class="embed-node" style="border-top-color:var(--cyan);border-top-width:2px">
+      <div class="embed-node-title" style="color:var(--cyan)">EXECUTE ACTION</div>
+      <div class="embed-node-body">~15 sec · ~$0.001</div>
+    </div>
+  </div>
+  <div class="embed-flow">
+    <div class="embed-node" style="opacity:0.3">Anomaly Detected</div>
+    <div class="embed-arrow" style="opacity:0.3">→</div>
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--purple)">③ Embedding Cache</div>
+      <div class="embed-node-body">cosine_sim(embed(anomaly), stored_vecs) &gt; 0.92 → replay cached resolution</div>
+    </div>
+    <div class="embed-arrow hit">→ HIT (~6%)</div>
+    <div class="embed-node" style="border-top-color:var(--purple);border-top-width:2px">
+      <div class="embed-node-title" style="color:var(--purple)">REPLAY RESOLUTION</div>
+      <div class="embed-node-body">~8 sec · ~$0.0005</div>
+    </div>
+  </div>
+  <div class="embed-flow">
+    <div class="embed-node" style="opacity:0.3">Anomaly Detected</div>
+    <div class="embed-arrow" style="opacity:0.3">→</div>
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--orange)">④ Local Model</div>
+      <div class="embed-node-body">In-cluster Ollama / ONNX · 7B param · confidence &gt;0.8</div>
+    </div>
+    <div class="embed-arrow hit">→ HIT (~4%)</div>
+    <div class="embed-node" style="border-top-color:var(--orange);border-top-width:2px">
+      <div class="embed-node-title" style="color:var(--orange)">EXECUTE ACTION</div>
+      <div class="embed-node-body">~10 sec · ~$0.002</div>
+    </div>
+  </div>
+  <div class="embed-flow">
+    <div class="embed-node" style="opacity:0.3">Anomaly Detected</div>
+    <div class="embed-arrow" style="opacity:0.3">→</div>
+    <div class="embed-node">
+      <div class="embed-node-title" style="color:var(--yellow)">⑤ Full LLM API</div>
+      <div class="embed-node-body">Novel problem. All cheaper tiers exhausted. Severity ≥ HIGH or novelty &gt;0.6.</div>
+    </div>
+    <div class="embed-arrow miss">→ (~1%)</div>
+    <div class="embed-node" style="border-top-color:var(--yellow);border-top-width:2px">
+      <div class="embed-node-title" style="color:var(--yellow)">DIAGNOSE + WRITE RULE</div>
+      <div class="embed-node-body">~45 sec · ~$0.05 · NewHeuristicRule emitted on success</div>
+    </div>
+  </div>
+
+  <!-- INCREMENTAL KG SPEC -->
+  <div class="section-header" style="margin-top:8px">
+    <span class="section-num" style="font-size:11px">11.3</span>
+    <span class="section-title" style="font-size:14px">Incremental Knowledge Graph Diffing — L1 + L8 Change</span>
+  </div>
+  <div class="section-body">
+    The current L1 KG rebuild is full-graph on every PR. For a service with 200 files and 40 Helm charts, this is significant compute every time a single utility function changes. The incremental diff engine makes KG rebuild proportional to the size of the change, not the size of the repo.
+  </div>
+
+  <table class="layer-table">
+    <thead><tr><th>Phase</th><th>Current Behavior (v8.1)</th><th>New Behavior (v9.0)</th><th>Cost Impact</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>L1 KG Rebuild</td>
+        <td>Full re-scan of all files, all Helm charts, all Terraform state on every PR and every 4-min background refresh</td>
+        <td>Compute <code>delta = git diff --name-only HEAD~1</code>. Re-evaluate only subgraph(delta): nodes reachable from changed files via import/dependency edges. Promote unchanged nodes from previous snapshot with <code>stale_flag=false</code> and freshness timestamp.</td>
+        <td>60–80% reduction in KG build time for small PRs (1–5 file changes). Full rebuild still triggered on: IaC drift detected, &gt;20% of files changed, or explicit InfraChanged event.</td>
+      </tr>
+      <tr>
+        <td>L8 Monte Carlo</td>
+        <td>Runs 500 trajectories over full system graph on every RiskEnvelope request</td>
+        <td>On incremental KG input: re-simulate only trajectories whose nodes intersect the KG delta. Unchanged trajectory branches reuse cached simulation results (TTL = KG snapshot age).</td>
+        <td>Simulation cost reduced proportional to delta size. For low-risk PRs (small delta, low-impact nodes), Monte Carlo may complete with 50–100 trajectories instead of 500, returning faster with tighter intervals.</td>
+      </tr>
+      <tr>
+        <td>Full Rebuild Triggers</td>
+        <td>Every 4 minutes during active canary (unconditional)</td>
+        <td>Full rebuild only on: <code>InfraChanged</code> event, KG staleness &gt; 5 min, delta size &gt;20% of total nodes, or <code>iac_drift_detected=true</code>. Otherwise: incremental delta update on background 4-min tick.</td>
+        <td>Background KG maintenance cost drops ~75% in stable environments between deploys.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre><span class="cm"># L1 Incremental KG Diffing — v9.0</span>
+<span class="kw">def</span> build_knowledge_graph(pr_diff: PRDiff, prev_kg: KnowledgeGraph) -> KnowledgeGraph:
+    changed_files = pr_diff.changed_file_paths()
+
+    <span class="cm"># Determine if incremental or full rebuild is warranted</span>
+    delta_ratio = len(changed_files) / max(prev_kg.node_count, 1)
+    <span class="kw">if</span> delta_ratio > <span class="val">0.20</span> <span class="kw">or</span> pr_diff.iac_drift_detected <span class="kw">or</span> prev_kg.is_stale:
+        <span class="kw">return</span> build_full_kg(pr_diff)                     <span class="cm"># full rebuild path (unchanged from v8.1)</span>
+
+    <span class="cm"># Incremental path: recompute only affected subgraph</span>
+    affected_nodes = prev_kg.subgraph_reachable_from(changed_files)  <span class="cm"># BFS on import edges</span>
+    unchanged_nodes = prev_kg.nodes - affected_nodes
+
+    new_kg = KnowledgeGraph()
+    new_kg.promote_nodes(unchanged_nodes, stale_flag=<span class="val">False</span>)   <span class="cm"># reuse unchanged nodes</span>
+    new_kg.recompute_nodes(affected_nodes, pr_diff)              <span class="cm"># re-scan only delta</span>
+    new_kg.risk_level = compute_risk(new_kg)
+    new_kg.incremental = <span class="val">True</span>
+    new_kg.delta_node_count = len(affected_nodes)
+    ctx.logger.write(<span class="str">"KGBuilt"</span>, incremental=<span class="val">True</span>, delta_nodes=len(affected_nodes),
+                     total_nodes=new_kg.node_count)
+    <span class="kw">return</span> new_kg</pre>
+
+  <!-- UPDATED HEALING LADDER TABLE -->
+  <div class="section-header" style="margin-top:8px">
+    <span class="section-num" style="font-size:11px">11.4</span>
+    <span class="section-title" style="font-size:14px">Updated L6 Healing Decision Ladder — v9.0 (5 Tiers)</span>
+  </div>
+
+  <table class="layer-table">
+    <thead><tr><th>Tier</th><th>Solver</th><th>Trigger Condition</th><th>Est. Coverage</th><th>Latency</th><th>Cost/event</th><th>On Success</th></tr></thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--green)">1</td>
+        <td>Heuristic (exact match)</td>
+        <td>signature_match ≥ 0.5 in Heuristic Library (exact Redis hash lookup)</td>
+        <td style="color:var(--green)">~90%</td>
+        <td>~5 sec</td>
+        <td style="color:var(--green)">~$0.0001</td>
+        <td>update success_count; log to QLDB</td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan)">2</td>
+        <td>RL Model (PPO policy)</td>
+        <td>Heuristic match &lt;0.5; RL confidence ≥ 0.7</td>
+        <td style="color:var(--cyan)">~9%</td>
+        <td>~15 sec</td>
+        <td style="color:var(--cyan)">~$0.001</td>
+        <td>L7 adds to RL training buffer; confidence feeds back</td>
+      </tr>
+      <tr>
+        <td style="color:var(--purple)">2b</td>
+        <td>Embedding Cache (semantic replay)</td>
+        <td>RL confidence &lt;0.7; cosine_similarity(embed(anomaly), stored_vecs) &gt; 0.92</td>
+        <td style="color:var(--purple)">~6% <span class="tag tag-new">NEW</span></td>
+        <td>~8 sec</td>
+        <td style="color:var(--purple)">~$0.0005</td>
+        <td>validate resolution applies; write new heuristic if novel context</td>
+      </tr>
+      <tr>
+        <td style="color:var(--orange)">3</td>
+        <td>Local Model (in-cluster Ollama)</td>
+        <td>Embedding similarity &lt;0.92; local model confidence ≥ 0.8; severity &lt; CRITICAL</td>
+        <td style="color:var(--orange)">~4% <span class="tag tag-new">NEW</span></td>
+        <td>~10 sec</td>
+        <td style="color:var(--orange)">~$0.002</td>
+        <td>dry-run validate; write heuristic if succeeds; promote to RL training if repeated</td>
+      </tr>
+      <tr>
+        <td style="color:var(--yellow)">4</td>
+        <td>Full LLM API</td>
+        <td>Local model confidence &lt;0.8 AND (severity ≥ HIGH OR novelty &gt; 0.6). Rate limit pre-check required.</td>
+        <td style="color:var(--yellow)">~1%</td>
+        <td>~45 sec</td>
+        <td style="color:var(--yellow)">~$0.05</td>
+        <td>NewHeuristicRule emitted; embed(anomaly) stored in EmbeddingCache; QLDB cost record</td>
+      </tr>
+      <tr>
+        <td style="color:var(--red)">5</td>
+        <td>Human Escalation</td>
+        <td>All automated tiers exhausted OR high-stakes (&gt;$100k) OR action dedup fired 3×</td>
+        <td style="color:var(--red)">&lt;0.1%</td>
+        <td>2–10 min</td>
+        <td style="color:var(--red)">~$5.00</td>
+        <td>Human decision → heuristic rule; T+10 safe rollback; T+15 unconditional rollback</td>
+      </tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ═══ REAL ISSUES ═══ -->
+<section class="section" id="real-issues">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <span class="section-title">Real Deployment Failure Modes + Mitigation Policies</span>
+  </div>
+  <div class="section-body">These are failure modes that will happen in production. Each has a specific mitigation built into the architecture above. No failure mode below is hypothetical — all have occurred in comparable systems.</div>
+
+  <div class="issues-grid" id="issues-grid"></div>
+</section>
+
+<!-- ═══ SAFETY ═══ -->
+<section class="section" id="safety">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <span class="section-title">Hard Safety Constraints — Non-Negotiable, Non-Bypassable</span>
+  </div>
+  <div class="section-body">These constraints cannot be overridden by any layer, including L8 and L9. They are checked by the Orchestrator before any state transition is executed. They exist because G2 (24/7 uptime) and G3 (auto-heal) require a system that is safe to run autonomously at Level 4.</div>
+
+  <div class="constraint-list">
+    <div class="constraint"><div class="c-num">S1</div><div class="c-text"><strong>No deployment to production without a signed container image.</strong> Kubernetes admission webhook (Connaisseur) rejects any pod spec with an unsigned image. This gate is enforced at the k8s API level — no NEEROps layer can bypass it programmatically.</div></div>
+    <div class="constraint"><div class="c-num">S2</div><div class="c-text"><strong>No secret ever baked into an image or environment variable.</strong> Vault agent sidecar is the only path. Build layer has a post-build check: scan image layers for common secret patterns. Fail build if any found. Applies to all layers including L9.</div></div>
+    <div class="constraint"><div class="c-num">S3</div><div class="c-text"><strong>Security-critical prompt sections are SHA-256 hash-locked.</strong> L9 Prompt Evolver cannot modify any prompt section that touches: Gitleaks gate, Trivy gate, ZAP gate, secrets injection. Any attempted change to a locked section is blocked and queued for human sign-off + hash recomputation.</div></div>
+    <div class="constraint"><div class="c-num">S4</div><div class="c-text"><strong>All architecture changes proposed by L9 require human review.</strong> L9 can propose; it cannot apply. Architecture proposals are published to a human-review queue. No action is taken until explicit human approval is recorded in QLDB with a named approver.</div></div>
+    <div class="constraint"><div class="c-num">S5</div><div class="c-text"><strong>Rollback is always possible before human escalation completes.</strong> The Orchestrator maintains a "last known good" image tag for every service at all times. At T+10min of a CRITICAL escalation with no human ACK, a safe rollback to last-known-good is attempted before the hard T+15min unconditional rollback fires.</div></div>
+    <div class="constraint"><div class="c-num">S6</div><div class="c-text"><strong>Vault secret rotation is locked during active canary.</strong> Orchestrator sets a deployment lock signal to Vault when a PR enters CANARY_* state. Vault defers all scheduled rotations for that service's secrets. Lock releases on MERGED or ROLLED_BACK — never left dangling (I03 mitigation).</div></div>
+    <div class="constraint"><div class="c-num">S7</div><div class="c-text"><strong>Circular healing loop detection is mandatory.</strong> L6 Healing tracks the last 3 actions taken for each anomaly instance via action signature hash. If the same action is proposed a 3rd time, the tier escalates immediately — no third execution. This prevents infinite scale-up → OOM → scale-up cycles (I04 mitigation).</div></div>
+    <div class="constraint"><div class="c-num">S8</div><div class="c-text"><strong>QLDB audit log is append-only and cannot be modified by any NEEROps layer.</strong> The QLDB writer is a global singleton with INSERT-only capability. No layer has UPDATE or DELETE access to QLDB records. S3 Object Lock mirror is WORM — no API can delete or overwrite it for the 10-year retention period.</div></div>
+  </div>
+</section>
+
+<!-- ═══ SLAs ═══ -->
+<section class="section" id="slas">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <span class="section-title">SLAs &amp; Measurable Targets — How We Know the Goals Are Met</span>
+  </div>
+
+  <div class="sla-grid">
+    <div class="sla-card"><div class="sla-metric">PR → Production (G1) — Fast Path</div><div class="sla-val" style="color:var(--green)">&lt;25 min</div><div class="sla-target">Low-risk PRs: canary converges in 2–5 min · Enforced by Orchestrator timer</div><div class="bar"><div class="bar-fill" style="width:88%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">PR → Production (G1) — Canary Ceiling</div><div class="sla-val" style="color:var(--orange)">&lt;90 min</div><div class="sla-target">High-risk PRs: canary hard ceiling 45 min × 2 phases + build/staging. Credit: 20% if missed.</div><div class="bar"><div class="bar-fill" style="width:72%;background:var(--orange)"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">PR → Staging (G1)</div><div class="sla-val" style="color:var(--green)">&lt;12 min</div><div class="sla-target">Credit: 10% if missed</div><div class="bar"><div class="bar-fill" style="width:92%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">Security Scan (G1)</div><div class="sla-val" style="color:var(--green)">&lt;5 min</div><div class="sla-target">Trivy + ZAP combined · Credit: 5% if missed</div><div class="bar"><div class="bar-fill" style="width:95%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">Auto-Heal Response (G3)</div><div class="sla-val" style="color:var(--green)">&lt;20 sec</div><div class="sla-target">Heuristic tier fires within 20 sec of anomaly detection</div><div class="bar"><div class="bar-fill" style="width:96%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">Human ACK SLA (G2)</div><div class="sla-val" style="color:var(--orange)">15 min</div><div class="sla-target">Auto-rollback at T+15 · QLDB SLA breach record</div><div class="bar"><div class="bar-fill" style="width:78%;background:var(--orange)"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">System Uptime (G2)</div><div class="sla-val" style="color:var(--green)">99.9%</div><div class="sla-target">8.7 hours/year max downtime · Credit: 25% if missed</div><div class="bar"><div class="bar-fill" style="width:99%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">CRITICAL CVEs in Prod (G1)</div><div class="sla-val" style="color:var(--green)">0</div><div class="sla-target">Trivy hard gate enforces this — no exceptions</div><div class="bar"><div class="bar-fill" style="width:100%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">Secrets in Images (G1)</div><div class="sla-val" style="color:var(--green)">0</div><div class="sla-target">Gitleaks + Vault policy enforces this — no exceptions</div><div class="bar"><div class="bar-fill" style="width:100%"></div></div></div>
+    <div class="sla-card"><div class="sla-metric">Human Escalation Rate (G3)</div><div class="sla-val" style="color:var(--green)">&lt;0.05%</div><div class="sla-target">World Model pre-empts known failure modes. Healing learns continuously.</div><div class="bar"><div class="bar-fill" style="width:95%"></div></div></div>
+  </div>
+
+  <div class="info-box">
+    <strong>Autonomy level achieved:</strong> Level 4 — Goal-directed autonomous operation. Engineers create PRs and review architecture proposals (monthly). All deployment, security scanning, monitoring, healing, and LLM operations are fully automated. Human involvement in day-to-day operations: &lt;0.05% of events. Every human intervention generates a heuristic rule that drives toward 0%. <strong>v8.1 addition:</strong> The Orchestrator HA pair, Autonomy Supervisor (§16), and all 12 production gap mitigations (§15) are prerequisites for true Level 4 operation — without them, the system degrades to Level 3 under infrastructure failure scenarios.
+  </div>
+</section>
+
+<!-- ═══ PRODUCTION GAPS (v8.1) ═══ -->
+<section class="section" id="production-gaps">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <span class="section-title">Production Gap Resolutions — 12 Architecture Challenges Addressed <span class="tag tag-new">v8.1</span></span>
+  </div>
+  <div class="section-body">Each of the 12 challenges identified in the architectural peer review is addressed below with a concrete mitigation, implementation path, and the safety constraint or design principle it satisfies. These were the remaining gaps between a theoretically sound architecture and one that is production-ready for Level 4 autonomy.</div>
+
+  <div class="honest-box">
+    <strong>Why these 12 matter:</strong> The original v8.0 document described mechanisms (e.g., Vault rotation deferral, Redis locking) without specifying <em>how</em> those mechanisms are implemented in practice. Several assumed APIs or behaviors that do not exist. Others lacked fallback paths for their own failure. v8.1 resolves every listed gap.
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Orchestrator SPOF — No HA, No State Recovery</span>
+    </div>
+    <div class="gap-mitigation">Active-passive Orchestrator pair with Redis Redlock leader election (quorum of 3 Redis nodes). All FSM state is persisted in Redis Streams + PostgreSQL — zero in-memory state. On leader heartbeat miss (5 sec), standby replays the last 10 Event Bus messages from the consumer group PEL to reconstruct mid-flight PR states. Split-brain guard: only the elected leader may publish <code>LayerCommand</code> events (enforced by a time-bounded leader token in Redis). Failover completes in &lt;10 seconds. QLDB records every leader election event.</div>
+    <div class="gap-impl">redis.set("orchestrator:leader", instance_id, nx=True, ex=10)  # TTL-based leader lease
+# Standby: if lease expires → acquire → replay PEL → resume
+for msg in redis.xpending_range("events:control", "orchestrator", "-", "+", 10):
+    orchestrator.reprocess(msg)  # idempotent: FSM ignores already-processed states</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Redis Split-Brain — No CRDTs, No Partition-Aware Coordination</span>
+    </div>
+    <div class="gap-mitigation">Redis Sentinel (3 sentinels, 1 replica) for HA. Canary lock keys use SET NX with a bounded TTL — on partition recovery, expired locks are automatically released, never double-acquired. The Orchestrator monitors Sentinel failover events: on failover detection, all state transitions are paused until quorum is re-established (typically &lt;5 sec). QLDB records every lock acquisition, extension, and release — post-partitioning audits are always complete. For large deployments: Redis Cluster with hash slots partitioned by service name prevents cross-shard contention.</div>
+    <div class="gap-impl">lock_key = f"canary_lock:{service}:{namespace}"
+acquired = redis.set(lock_key, pr_id, nx=True, ex=3600)  # TTL prevents permanent lock on crash
+# On Sentinel failover event: pause Orchestrator transitions
+sentinel.subscribe("failover", lambda: orchestrator.pause_transitions(until="quorum_restored"))</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Non-Stationary Metrics — Bayesian Model Lacks Trend/Seasonality Adjustment</span>
+    </div>
+    <div class="gap-mitigation">Holt-Winters triple exponential smoothing is applied to all L5 metric streams before they enter the Bayesian causal graph. This separates level, trend, and seasonal components — ensuring the canary baseline comparison is against "expected normal for this time of day and day of week", not just a raw rolling average. The smoothing parameters (α, β, γ) are fitted per-metric from 30 days of historical data and updated weekly by L9 Threshold Optimizer. Fast-changing metrics (error rate) use a 1-hour adaptive window; slow-changing metrics (latency p99) use a 24-hour window. Sudden step-changes (post-deploy jumps) are detected via CUSUM and excluded from the trend model for the first 10 minutes.</div>
+    <div class="gap-impl">from statsmodels.tsa.holtwinters import ExponentialSmoothing
+model = ExponentialSmoothing(metric_series, trend='add', seasonal='add', seasonal_periods=24)
+fitted = model.fit()
+baseline_forecast = fitted.forecast(steps=1)  # trend+seasonality-adjusted expected value
+# Canary comparison: compare canary_metric vs baseline_forecast (not raw rolling mean)</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">KG Stale During Long Canary — No Auto-Refresh Without New PR</span>
+    </div>
+    <div class="gap-mitigation">Knowledge Graph has a 5-minute TTL AND is invalidated immediately on any <code>InfraChanged</code> event published by L5 Monitor (node drain, pod restart, Terraform drift detected). A background KG refresh task runs every 4 minutes during active canary phases — independent of PR activity. If KG rebuild fails, the last valid snapshot is used with <code>stale_kg=true</code> flag, L8 widens its confidence intervals by 20%, and canary advance threshold tightens from P≥0.95 to P≥0.97 to compensate. KG freshness timestamp is visible in every L8 RiskEnvelope output and written to QLDB for postmortem analysis.</div>
+    <div class="gap-impl">kg_cache.set(service_id, kg_snapshot, ttl=300)  # 5-min TTL
+event_bus.subscribe("infra.changed", lambda e: kg_cache.delete(e.service_id))  # immediate invalidation
+# Background refresh during active canary:
+scheduler.every(4).minutes.do(lambda: l1.refresh_kg_if_canary_active(service_id))</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">L5 Circuit Breaker Breaks Canary Gate — No Metric-Less Fallback for Bayesian Gate</span>
+    </div>
+    <div class="gap-mitigation">When L5 Monitor's circuit breaker opens, the Orchestrator activates a static threshold fallback gate baked directly into the Orchestrator process — no external dependency. Fallback rules: CPU &gt; 80% for 2 consecutive checks → HOLD; error_rate &gt; 1% → ROLLBACK; p99 latency &gt; 2× baseline → HOLD. These rules are derived from the last 90 days of canary data and baked in at deploy time. Canary is held (not advanced) while L5 is down. If L5 is unavailable for &gt;5 minutes during an active canary, the canary is automatically rolled back (cannot safely promote without observability). Supervisor (§16) fires a PagerDuty CRITICAL within 30 seconds of L5 heartbeat loss.</div>
+    <div class="gap-impl">FALLBACK_GATE_RULES = [
+    {"metric": "error_rate", "threshold": 0.01, "action": "ROLLBACK"},
+    {"metric": "cpu_pct",    "threshold": 0.80, "action": "HOLD"},
+    {"metric": "p99_latency_ms", "threshold": baseline_p99 * 2, "action": "HOLD"},
+]
+# Applied by Orchestrator directly from last-scraped Prometheus snapshot (60-sec cache)</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Vault Rotation Deferral Impossible — Assumes Non-Existent Vault API</span>
+    </div>
+    <div class="gap-mitigation">Two concrete mechanisms replace the assumed API: (1) <strong>Lease renewal:</strong> <code>vault write sys/leases/renew/{lease_id} increment=3600</code> extends the TTL of the existing dynamic secret lease, preventing the rotation scheduler from firing. The lease ID is captured when the secret is first issued and stored in the Orchestrator's PR state record. (2) <strong>Vault KV sentinel flag:</strong> Orchestrator sets <code>vault kv put neerops/canary-lock/{service} active=true</code>; a Vault policy sentinel attached to the rotation role checks this flag before executing rotation — if the flag is present, the rotation write is blocked and deferred. Lock release: both mechanisms are cleared on MERGED/ROLLED_BACK. Watchdog: if lock age exceeds 2 hours (abandoned canary), a Vault TTL sentinel fires an alert and auto-clears the flag after 30-minute grace period. All lock events written to QLDB.</div>
+    <div class="gap-impl"># Mechanism 1: Extend dynamic secret lease TTL
+vault.write(f"sys/leases/renew/{pr_state.vault_lease_id}", increment=3600)
+
+# Mechanism 2: Set KV sentinel flag (checked by Vault policy before rotation)
+vault.write(f"secret/data/neerops/canary-lock/{service}", data={"active": "true", "pr_id": pr_id})
+
+# On terminal state: clear both
+vault.renew(pr_state.vault_lease_id, increment=0)  # allow natural expiry
+vault.delete(f"secret/data/neerops/canary-lock/{service}")</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">LLM Token Budget Exhaustion — No Per-Incident Priority or Pre-emption</span>
+    </div>
+    <div class="gap-mitigation">Token budget is now tiered and pre-emptible. The daily budget is split into four priority lanes: CRITICAL (20%), HIGH (40%), NORMAL (30%), BACKGROUND (10%). A CRITICAL incident can pre-empt an in-flight NORMAL or BACKGROUND LLM call by publishing a <code>PreemptLLMCall</code> event — the current call is checkpointed, CRITICAL is handled, then the pre-empted call resumes from its checkpoint if budget allows, or escalates to human with full log context if not. Per-incident token allocation is capped (CRITICAL: 8k tokens, HIGH: 4k, NORMAL: 2k) — this prevents a single runaway LLM call from exhausting the day's budget. All token spend written to QLDB per event for H3 (cost) tracking.</div>
+    <div class="gap-impl">BUDGET_LANES = {"CRITICAL": 0.20, "HIGH": 0.40, "NORMAL": 0.30, "BACKGROUND": 0.10}
+TOKEN_CAPS   = {"CRITICAL": 8000, "HIGH": 4000, "NORMAL": 2000, "BACKGROUND": 1000}
+
+def allocate_tokens(priority, daily_budget):
+    lane_budget = daily_budget * BUDGET_LANES[priority]
+    if remaining_in_lane(priority) < TOKEN_CAPS[priority]:
+        return escalate_with_full_logs(reason="budget_exhausted")
+    return min(TOKEN_CAPS[priority], remaining_in_lane(priority))</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Mutation Testing Too Slow — No Time-Budget Fallback for Large Repos</span>
+    </div>
+    <div class="gap-mitigation">Mutation testing now has a hard time budget: 3 minutes per PR, after which the gate falls back to coverage-only mode (line coverage ≥ 85% on changed lines) rather than blocking the pipeline. Within the time budget, mutmut prioritizes mutations on the highest-risk lines (identified by L8 risk score and cyclomatic complexity) — ensuring the most dangerous mutations are tested first even if the full suite cannot run. For repos where even 3 minutes is too slow, a sampled mutation mode runs 20% of all possible mutations selected by stratified random sampling — providing a statistical bound on mutation score rather than an exact count. The time budget and fallback mode are recorded in QLDB; a weekly report flags repos consistently hitting the time budget for developer attention.</div>
+    <div class="gap-impl">result = run_mutmut(
+    files=changed_lines,
+    priority_order=l8_risk_scores,   # highest-risk lines mutated first
+    time_budget_seconds=180,          # hard ceiling: 3 min
+    exclude=quarantined_flaky_tests
+)
+if result.timed_out:
+    score = coverage_fallback(changed_lines, threshold=0.85)  # fallback to line coverage
+    qldb.write({"mode": "coverage_fallback", "reason": "mutation_timeout", "pr": pr_id})</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Database Migrations Not Supported — Entirely Missing from Pipeline</span>
+    </div>
+    <div class="gap-mitigation">Database migrations are now a first-class pipeline step inserted between L3 Build and L4a Staging. Migration detection: L1 Code Understanding scans for <code>migrations/</code>, <code>alembic/</code>, <code>flyway/</code>, or <code>db/migrate/</code> directories in the PR diff and sets <code>has_migration=true</code> in the KG. Migration safety gates: (1) Schema change must be backward-compatible — checked by running the migration against a staging DB snapshot and verifying the old application version still starts successfully against the migrated schema. (2) Additive-only migrations (add column/table) proceed automatically. (3) Destructive migrations (drop column/table/rename) require explicit human approval written to QLDB before proceeding. (4) Long-running migrations (&gt;60 sec on staging data) trigger an advisory warning and pause for human ACK. Rollback path: every migration must have a corresponding <code>downgrade</code> script validated at PR time — no migration is accepted without a tested rollback.</div>
+    <div class="gap-impl">if kg.has_migration:
+    migration_type = detect_migration_type(pr_diff)  # additive | destructive | schema-change
+    if migration_type == "destructive":
+        require_human_approval(pr_id, reason="destructive_migration")
+    run_migration_on_staging_snapshot()      # validate against copy of prod schema
+    verify_backward_compatibility(old_image, new_schema)  # old app + new schema must start OK
+    validate_downgrade_script_exists_and_runs()</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Prompt Evolution Degrades Silently — No Ground-Truth Evaluation for Prompts</span>
+    </div>
+    <div class="gap-mitigation">L9 Prompt Evolver now maintains a held-out ground-truth evaluation set of 500 labeled examples (correct/incorrect review decisions, correct/incorrect healing diagnoses) that is never used for training. Before any prompt variant is promoted from shadow to production, it must score ≥ baseline accuracy on this evaluation set. The eval set is updated quarterly with newly labeled examples from QLDB (human override decisions are the source of truth). KL-divergence of prompt output distributions is monitored continuously — if divergence between the live prompt and the previous best exceeds 0.08 over a 24-hour window, a degradation alert fires and the prompt is auto-rolled-back. Prompt version, eval score, and KL-divergence are written to QLDB for every A/B test cycle.</div>
+    <div class="gap-impl">eval_set = load_labeled_eval_set(n=500, source="qldb_human_overrides")
+challenger_score = evaluate_prompt(challenger_template, eval_set)
+baseline_score   = evaluate_prompt(baseline_template, eval_set)
+
+if challenger_score < baseline_score:
+    reject_challenger(reason=f"eval_score {challenger_score:.3f} < baseline {baseline_score:.3f}")
+# Continuous KL monitoring:
+if kl_divergence(live_outputs_24h, prev_best_outputs_24h) > 0.08:
+    auto_rollback_prompt(); alert("prompt_degradation_detected")</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">Cross-Region Replication Lag — No Awareness of Data Consistency Lag</span>
+    </div>
+    <div class="gap-mitigation">L4c (50% multi-region canary) now includes a replication lag pre-check before advancing traffic to us-west-2. The Orchestrator queries the PostgreSQL replica lag metric (<code>pg_stat_replication.replay_lag</code>) and the Redis cross-region replication offset. If replica lag exceeds 5 seconds, traffic is not split to that region until lag drops below 2 seconds — the canary holds in us-east-1 only. L5 Monitor continuously tracks cross-region replication lag as a first-class metric alongside error rate and latency. A persistent lag &gt;10 seconds triggers a G2 anomaly event and L6 Healing investigates (typically: network congestion, replica overload). The replication lag at canary advance time is written to QLDB for every deployment — enabling postmortem correlation of deployment failures with consistency lag.</div>
+    <div class="gap-impl">def pre_check_replication_lag(region: str, max_lag_seconds: float = 5.0) -> bool:
+    pg_lag = db.query("SELECT extract(epoch FROM replay_lag) FROM pg_stat_replication WHERE client_addr LIKE %s", f"%{region}%")
+    redis_lag = redis.info("replication").get("master_repl_offset") - replica_offset(region)
+    return pg_lag < max_lag_seconds and redis_lag < 1000  # 1000 byte offset tolerance
+
+if not pre_check_replication_lag("us-west-2"):
+    orchestrator.hold_canary(reason="replication_lag_too_high", retry_after=30)</div>
+  </div>
+
+  <div class="gap-card resolved">
+    <div class="gap-header">
+      <span class="gap-tag gap-tag-fixed">RESOLVED</span>
+      <span class="gap-challenge">External API Outages — No Pre-Flight Health Checks or Secondary Providers</span>
+    </div>
+    <div class="gap-mitigation">All external API dependencies (GitHub/Bitbucket, ECR, Vault, LLM providers, scan APIs) now have a pre-flight health check gate run by the Orchestrator before each pipeline phase that depends on them. Pre-flight checks are lightweight (HEAD request or API status endpoint), timeout after 3 seconds, and run in parallel. Results are cached for 60 seconds to avoid health-check storms. For critical external APIs, secondary providers are configured: (1) ECR → fallback to in-cluster Harbor registry (already present for I06); (2) Primary LLM provider → fallback to secondary provider at higher cost; (3) GitHub API → retry with exponential backoff + fallback to local git mirror for diff extraction. Pre-flight failures are classified as WARN (degrade gracefully) or BLOCK (cannot proceed). All pre-flight results written to QLDB.</div>
+    <div class="gap-impl">PREFLIGHT_CHECKS = {
+    "ecr":        {"url": ECR_HEALTH_URL,    "fallback": "harbor_registry", "class": "WARN"},
+    "vault":      {"url": VAULT_HEALTH_URL,  "fallback": None,              "class": "BLOCK"},
+    "llm_primary":{"url": LLM_HEALTH_URL,   "fallback": "llm_secondary",   "class": "WARN"},
+    "github_api": {"url": GH_HEALTH_URL,    "fallback": "local_git_mirror", "class": "WARN"},
+}
+results = asyncio.gather(*[check(name, cfg) for name, cfg in PREFLIGHT_CHECKS.items()])
+if any(r.status == "BLOCK" and r.failed for r in results):
+    orchestrator.halt_pipeline(reason="critical_dependency_unavailable")</div>
+  </div>
+
+</section>
+
+<!-- ═══ RL TRAINING PIPELINE (v8.1) ═══ -->
+<section class="section" id="rl-pipeline">
+  <div class="section-header">
+    <span class="section-num">16</span>
+    <span class="section-title">RL Training Pipeline — Off-Policy, Reward Shaping, Safe Exploration <span class="tag tag-new">v8.1</span></span>
+  </div>
+  <div class="section-body">The Goal Engine (L8) and L6 Healing RL tier use a PPO policy network trained on deployment outcomes. This section specifies the training pipeline in detail — including the off-policy/on-policy choice, reward shaping, and safe exploration constraints that were absent from v8.0.</div>
+
+  <div class="info-box">
+    <strong>Design choice — off-policy training:</strong> NEEROps uses off-policy training (Replay Buffer + PPO with importance sampling corrections) rather than on-policy training. Reason: on-policy training would require the RL agent to generate its own deployment decisions to collect experience, which is unsafe in production. Off-policy training learns from the historical log of heuristic, LLM, and human decisions stored in QLDB — the RL model improves from observed outcomes without having to act autonomously during training. Safe exploration is enforced by constraining the RL policy to a heuristic-bounded action space during the initial 90-day warm-up period.
+  </div>
+
+  <div class="rl-grid">
+    <div class="rl-card">
+      <div class="rl-card-title">Training Data</div>
+      <div class="rl-card-body">Source: QLDB deployment outcomes, healing traces, canary metric windows — 7-day rolling window. Each training example: (state = metrics+risk+context, action = deploy/hold/rollback/escalate, reward = observed outcome). Off-policy corrections via importance sampling weights (IS-weighted PPO). Minimum: 500 examples per daily training run. Fewer than 500 → skip training cycle, use previous model.</div>
+    </div>
+    <div class="rl-card">
+      <div class="rl-card-title">Reward Shaping</div>
+      <div class="rl-card-body">3-dimensional reward aligned with H1/H2/H3:<br>
+      • <strong>H1 (deploy safely):</strong> +1.0 for clean deploy to 100%, −2.0 for rollback due to bug, −0.5 for false rollback (rollback caused by infra event, not bug)<br>
+      • <strong>H2 (uptime):</strong> +0.5 for every 5-min window with error_rate &lt; 0.1%; −1.0 for any SLA breach during or after deploy<br>
+      • <strong>H3 (cost):</strong> −0.01 per LLM token spent; +0.1 for every heuristic resolution that avoids LLM call<br>
+      Discounted sum γ=0.95 over a 2-hour horizon.</div>
+    </div>
+    <div class="rl-card">
+      <div class="rl-card-title">Safe Exploration</div>
+      <div class="rl-card-body">During 90-day warm-up: RL policy is constrained to agree with the heuristic action ≥80% of the time (KL penalty in loss function). After warm-up: constraint relaxed to 60%. Hard constraints baked into action space: RL cannot propose actions that would bypass S1–S8 safety constraints — these are structurally impossible actions, not just penalized ones. KL-divergence monitor: if RL policy distribution shifts &gt;0.1 from previous checkpoint → auto-revert to checkpoint + L9 retraining scheduled.</div>
+    </div>
+    <div class="rl-card">
+      <div class="rl-card-title">Validation &amp; Shadow Deployment</div>
+      <div class="rl-card-body">Before any new RL model enters production: 24-hour shadow deployment. Shadow model observes every decision but does not act — its proposed actions are logged to QLDB alongside the live model's actions. Promotion criterion: shadow model's proposed actions agree with human expert labels ≥90% on a held-out 200-example eval set AND have lower mean regret than the live model on shadow observations. KL-divergence between shadow and live policy: must be &lt;0.05 to prevent destabilizing jumps.</div>
+    </div>
+    <div class="rl-card">
+      <div class="rl-card-title">Continuous Monitoring</div>
+      <div class="rl-card-body">Post-deployment: RL reward trend monitored by L7 Feedback every hour. If 3-hour rolling mean reward drops &gt;15% below 7-day mean → auto-revert to previous model checkpoint + alert. Model version, reward history, and all eval results written to QLDB — full audit trail of every model version ever deployed. L9 Meta-Cognition audits RL decision consistency: if RL frequently disagrees with heuristics on cases where heuristics historically succeed → flag for retraining.</div>
+    </div>
+    <div class="rl-card">
+      <div class="rl-card-title">Technology Stack</div>
+      <div class="rl-card-body">PyTorch PPO implementation (Stable-Baselines3). Feature encoding: 48-dimensional state vector (16 metric features × 3 time horizons). Action space: discrete 4-action {ADVANCE, HOLD, ROLLBACK, ESCALATE}. Training: single A100 GPU, ~12 min/day. Model serialization: TorchScript for inference — no Python dependency at inference time. Inference latency: &lt;50ms per decision. Model artifacts stored in S3 with version tags; rollback to any previous version in &lt;30 sec.</div>
+    </div>
+  </div>
+
+  <pre><span class="cm"># RL training loop — off-policy PPO with importance sampling</span>
+<span class="kw">def</span> train_rl_model(qldb_window: <span class="val">7</span>):
+    experiences = qldb.query_deployment_outcomes(days=qldb_window)
+    <span class="kw">if</span> len(experiences) < <span class="val">500</span>:
+        <span class="kw">return</span> skip_cycle(<span class="str">"insufficient_data"</span>)
+
+    buffer = ReplayBuffer(experiences)
+    model  = PPO.load_checkpoint()  <span class="cm"># off-policy: load latest, not fresh init</span>
+
+    <span class="kw">for</span> batch <span class="kw">in</span> buffer.sample(batch_size=<span class="val">256</span>):
+        is_weights = compute_importance_sampling_weights(batch, model.policy)
+        reward     = shape_reward(batch, H1_weight=<span class="val">1.0</span>, H2_weight=<span class="val">0.5</span>, H3_weight=<span class="val">0.1</span>)
+        loss       = ppo_loss(batch, is_weights, reward)
+
+        <span class="cm"># Safe exploration: KL penalty if diverging from heuristic during warm-up</span>
+        <span class="kw">if</span> warmup_period:
+            loss += kl_penalty_weight * kl_divergence(model.policy, heuristic_policy)
+
+        loss.backward(); optimizer.step()
+
+    shadow_model = ShadowDeployment(model)
+    <span class="kw">if</span> shadow_model.passes_24h_eval(eval_set, threshold=<span class="val">0.90</span>):
+        promote_to_production(model); qldb.record_model_version(model)</pre>
+</section>
+
+<!-- ═══ AUTONOMY SUPERVISOR (v8.1) ═══ -->
+<section class="section" id="supervisor">
+  <div class="section-header">
+    <span class="section-num">17</span>
+    <span class="section-title">Autonomy Supervisor — Monitoring the Monitor <span class="tag tag-new">v8.1</span></span>
+  </div>
+  <div class="section-body">A system that operates at Level 4 autonomy must be able to monitor its own control plane. The Autonomy Supervisor is a lightweight, independent process that watches the health of every critical NEEROps subsystem — Orchestrator, L5 Monitor, Redis, Event Bus, RL models, and prompt quality — and acts without depending on any of the systems it monitors.</div>
+
+  <div class="honest-box">
+    <strong>Why a separate supervisor:</strong> The Orchestrator cannot reliably report its own failure. L5 cannot alert on its own downtime. The supervisor is intentionally simple (no Redis dependency, no Vault dependency, no Event Bus dependency) — it runs as an independent k8s Deployment with its own PagerDuty direct-write credentials. Its only job is: observe heartbeats, fire alerts, and trigger safe rollback if critical systems are unresponsive.
+  </div>
+
+  <div class="supervisor-grid">
+    <div class="supervisor-card">
+      <div class="supervisor-title">Orchestrator Health Watch</div>
+      <div class="supervisor-body">Checks Orchestrator leader heartbeat every 5 seconds via a dedicated <code>/health</code> HTTP endpoint (not via Redis — independent path). On miss: (1) Triggers standby Orchestrator leader election. (2) If no Orchestrator leader is elected within 30 seconds: pauses all active canaries via direct kubectl annotation. (3) Fires PagerDuty CRITICAL. (4) Logs health event to S3 directly (not QLDB — QLDB may be unavailable). Recovery: supervisor re-checks every 10 seconds; when Orchestrator leader heartbeat resumes, supervisor publishes <code>OrchestratorRecovered</code> to Event Bus and active pipelines resume.</div>
+    </div>
+    <div class="supervisor-card">
+      <div class="supervisor-title">L5 Monitor Health Watch</div>
+      <div class="supervisor-body">L5 Monitor publishes a heartbeat event to a dedicated <code>heartbeat:l5</code> Redis stream every 10 seconds. Supervisor reads this stream independently. On 30-second heartbeat gap: (1) Activates static threshold fallback gate in Orchestrator (CPU&gt;80% → HOLD, error_rate&gt;1% → ROLLBACK). (2) Switches L6 Healing to heuristic-only mode. (3) Fires PagerDuty HIGH. (4) If L5 down &gt;5 minutes and canary is active: supervisor triggers canary rollback directly via kubectl. L5 recovery: supervisor detects resumed heartbeat and publishes <code>L5Recovered</code> → Orchestrator restores full Bayesian gate mode.</div>
+    </div>
+    <div class="supervisor-card">
+      <div class="supervisor-title">RL Model Quality Watch</div>
+      <div class="supervisor-body">Every hour, supervisor queries L7 Feedback for the rolling 3-hour RL reward mean and compares to the 7-day baseline. If 3-hour mean drops &gt;15% below 7-day mean: (1) Auto-reverts to previous RL checkpoint in &lt;30 seconds. (2) L6 Healing falls back to heuristic tier only (RL tier disabled). (3) Fires PagerDuty HIGH + schedules L9 retraining. Also monitors KL-divergence: if live RL policy KL-divergence from baseline &gt;0.1 for &gt;2 consecutive hours → same auto-revert path. All revert events written to QLDB with timestamp and trigger reason.</div>
+    </div>
+    <div class="supervisor-card">
+      <div class="supervisor-title">Prompt Quality Watch</div>
+      <div class="supervisor-body">Every 6 hours, supervisor samples 50 recent LLM decisions from QLDB and evaluates them against the ground-truth eval set. If accuracy drops &gt;5% from the promoted prompt's original eval score: (1) Flags prompt for L9 review. (2) If accuracy drop &gt;10%: auto-rolls back to previous prompt version. (3) Fires PagerDuty WARN. This catches silent prompt degradation due to LLM model updates or distribution shift — a failure mode not caught by A/B testing alone. Prompt version, accuracy score, and rollback decisions are all written to QLDB.</div>
+    </div>
+    <div class="supervisor-card">
+      <div class="supervisor-title">Event Bus Lag Watch</div>
+      <div class="supervisor-body">Supervisor independently checks Redis Streams consumer group lag for all NEEROps consumer groups every 15 seconds. Alert thresholds: lag &gt;5 seconds → PagerDuty WARN; lag &gt;30 seconds → PagerDuty HIGH + Orchestrator pauses new pipeline starts. Dead-letter stream: messages that fail 3 delivery attempts are moved to <code>events:dlq</code> — supervisor alerts on any DLQ message and routes it to human review queue. Supervisor uses a read-only Redis replica connection — not the primary — to avoid adding write load during a potential Redis overload scenario.</div>
+    </div>
+    <div class="supervisor-card">
+      <div class="supervisor-title">Supervisor Self-Monitoring</div>
+      <div class="supervisor-body">The supervisor itself is a k8s Deployment with 2 replicas (active-active, since it only reads). k8s liveness probe restarts a failed supervisor pod within 30 seconds. Supervisor writes its own heartbeat to a CloudWatch metric (external to the cluster) every 60 seconds — this enables an external monitoring service (e.g., Datadog, AWS CloudWatch alarm) to alert if the supervisor itself stops running. The external heartbeat check is the one monitoring component that truly has no internal dependency — it uses AWS SDK credentials baked into the supervisor pod's IAM role.</div>
+    </div>
+  </div>
+
+  <pre><span class="cm"># Autonomy Supervisor — simplified heartbeat check loop</span>
+<span class="kw">class</span> AutonomySupervisor:
+    <span class="kw">def</span> run_forever(self):
+        <span class="kw">while True</span>:
+            self.check_orchestrator_heartbeat()    <span class="cm"># HTTP, every 5s</span>
+            self.check_l5_monitor_heartbeat()      <span class="cm"># Redis read-only, every 10s</span>
+            self.check_event_bus_lag()             <span class="cm"># Redis read-only, every 15s</span>
+            self.check_rl_reward_trend()           <span class="cm"># QLDB query, every 1h</span>
+            self.check_prompt_quality()            <span class="cm"># QLDB sample + eval, every 6h</span>
+            self.write_own_heartbeat_to_cloudwatch()  <span class="cm"># external, every 60s</span>
+            time.sleep(<span class="val">5</span>)
+
+    <span class="kw">def</span> check_orchestrator_heartbeat(self):
+        <span class="kw">try</span>:
+            resp = requests.get(ORCHESTRATOR_HEALTH_URL, timeout=<span class="val">3</span>)
+            <span class="kw">if</span> resp.status_code != <span class="val">200</span>: self.trigger_orchestrator_failover()
+        <span class="kw">except</span> Timeout:
+            self.trigger_orchestrator_failover()  <span class="cm"># missed heartbeat → failover</span>
+
+    <span class="kw">def</span> trigger_orchestrator_failover(self):
+        redis_standby.set(<span class="str">"orchestrator:leader"</span>, standby_instance_id, nx=<span class="kw">True</span>, ex=<span class="val">10</span>)
+        <span class="kw">if</span> self.no_leader_after(<span class="val">30</span>):  <span class="cm"># neither instance recovered</span>
+            kubectl.annotate_all_canaries(<span class="str">"neerops/pause=true"</span>)  <span class="cm"># safe pause</span>
+            pagerduty.alert(severity=<span class="str">"CRITICAL"</span>, msg=<span class="str">"Orchestrator leader lost — canaries paused"</span>)</pre>
+</section>
+
+</main>
+</div>
+
+<script>
+const ISSUES = [
+  {
+    id: "I01", sev: "CRIT", title: "Kubernetes API server unreachable mid-canary",
+    cause: "Network partition or k8s control plane upgrade during active canary deployment.",
+    effect: "kubectl commands hang indefinitely. Pipeline never completes. Canary traffic split frozen.",
+    mitigation: "Dead-man's switch: every kubectl/helm operation has a configurable timeout (default 5 min). On timeout, Orchestrator publishes OperationTimeout event → immediate rollback to last-known-good image. Timeout value written to QLDB for postmortem. G2 preserved.",
+    impl: "subprocess.run(cmd, timeout=300) — on TimeoutExpired → event_bus.publish('OperationTimeout') → rollback"
+  },
+  {
+    id: "I02", sev: "CRIT", title: "Parallel PRs contaminating canary metrics",
+    cause: "Two engineers push PRs for the same service simultaneously. Both enter canary phase. Metrics from both versions are mixed — impossible to attribute anomaly to correct PR.",
+    effect: "False rollback of a healthy PR. Or a bad PR passes canary because a concurrent healthy PR masks its errors.",
+    mitigation: "Orchestrator acquires per-service-namespace lock (Redis SETNX) before any canary phase. Second PR for same service enters WAITING state with author notification. Lock released on MERGED or ROLLED_BACK. PRs for different services run concurrently.",
+    impl: "lock_key = f'canary_lock:{service}:{namespace}'; redis.setnx(lock_key, pr_id, ex=3600)"
+  },
+  {
+    id: "I03", sev: "CRIT", title: "Vault secret rotation during active canary",
+    cause: "Vault scheduled rotation (e.g., 30-day PostgreSQL password rotation) fires at T+14min during a 15-min canary phase.",
+    effect: "All canary pods lose DB connectivity simultaneously. Error rate spikes to 100%. Triggers rollback — which is a false rollback caused by an operational event, not a product bug.",
+    mitigation: "When Orchestrator transitions PR to CANARY_* state, it sends rotation_defer signal to Vault for that service's secrets. Vault holds all rotations for that service. Signal is released on MERGED or ROLLED_BACK (S6 safety constraint).",
+    impl: "vault.client.write(f'sys/leases/renew/{service}/postgres', increment=3600) on canary start"
+  },
+  {
+    id: "I04", sev: "CRIT", title: "Circular healing loop (scale-up → OOM → scale-up)",
+    cause: "Healing heuristic adds 2 replicas in response to OOM. New replicas also OOM. Healing fires again. Repeat.",
+    effect: "Node pool exhausted. Cluster-wide OOM cascade. All services affected.",
+    mitigation: "L6 Healing tracks action signature hash for each anomaly instance. If same action (e.g., scale_replicas:+2) is proposed for the same anomaly_id a 3rd time, tier escalates immediately to RL/LLM/Human without executing. Action dedup checked before any execution (S7 safety constraint).",
+    impl: "action_hash = sha256(f'{anomaly_id}:{action_type}:{params}'); if heal_trace.count(action_hash) >= 2: escalate()"
+  },
+  {
+    id: "I05", sev: "HIGH", title: "LLM API rate limit during CRITICAL healing",
+    cause: "High deployment volume or spike in novel errors causes LLM API quota to be exhausted when a CRITICAL issue needs LLM-level healing.",
+    effect: "LLM tier silently fails. System escalates to Human without surfacing the reason. On-call engineer has no context.",
+    mitigation: "L6 Healing checks LLM rate limit budget before attempting LLM call. 20% of daily token budget is reserved for CRITICAL priority issues. If budget exhausted, publish RateLimitExhausted event with full log context to Human escalation. Human receives complete context even without LLM diagnosis.",
+    impl: "if llm_client.remaining_tokens() < CRITICAL_RESERVE and priority != 'CRITICAL': escalate_with_logs()"
+  },
+  {
+    id: "I06", sev: "HIGH", title: "Container registry (ECR) unavailable during image push",
+    cause: "AWS ECR regional outage or network partition during L3 Build image push.",
+    effect: "Build step fails. Pipeline stalls. If retry logic not bounded, build workers accumulate.",
+    mitigation: "Circuit breaker on ECR push (3 failures in 5 min → open, 60s timeout). On open: attempt push to fallback local registry (Harbor, deployed in-cluster). If fallback also fails: emit BuildFailed, notify author, mark PR FAILED. Retry budget: max 3 attempts with exponential backoff (2s, 8s, 32s).",
+    impl: "circuit_breaker('ecr_push', threshold=3, timeout=60); on open: registry.push(harbor_fallback_url)"
+  },
+  {
+    id: "I07", sev: "HIGH", title: "Stale Knowledge Graph (L1) used after infra change",
+    cause: "L1 builds a Knowledge Graph at T=0. At T=45min (during canary), a Kubernetes node is drained for maintenance. The KG reflects the old cluster topology.",
+    effect: "L8 World Model simulates trajectories against wrong infrastructure state. Risk scores inaccurate. Pre-computed healing plans reference a pod that no longer exists.",
+    mitigation: "Knowledge Graph has a TTL of 5 minutes AND a change-event invalidation trigger. If L5 Monitor detects a node state change event, it publishes InfraChanged → KG is immediately invalidated. On next L8 query, L1 re-scans before L8 proceeds.",
+    impl: "kg_cache.set(pr_id, kg, ttl=300); event_bus.subscribe('infra.changed', lambda: kg_cache.delete(pr_id))"
+  },
+  {
+    id: "I08", sev: "HIGH", title: "OOM during high-traffic canary phase",
+    cause: "Concurrent sessions have a known memory growth pattern. At 50% canary with full production traffic, concurrent sessions can OOM the node before metrics breach threshold.",
+    effect: "Node OOM kills pods. Canary appears to fail. Potential cluster-wide memory pressure cascade.",
+    mitigation: "Before L4b canary start: resource headroom check — verify target nodes have ≥ (replicas × memory_limit × 1.2) free. If not: scale node pool first. Per-session memory limit enforced via k8s limits.memory. Concurrency cap enforced by app config.",
+    impl: "assert cluster.free_memory(nodes) >= (replicas * MEM_LIMIT * 1.2) before kubectl apply canary"
+  },
+  {
+    id: "I09", sev: "MED", title: "Flaky tests causing unreliable mutation scores",
+    cause: "A test that fails intermittently will inflate or deflate mutation score depending on when it runs. A PR may pass or fail the 80% mutation gate non-deterministically.",
+    effect: "Developer frustration. Loss of trust in the CI gate. Eventually, the gate gets lowered or bypassed — degrading G1.",
+    mitigation: "Flakiness classifier: tests with >5% historical failure rate are quarantined (removed from mutation score calculation). Quarantined tests published to weekly flake report. Must be fixed before next release. Mutation score computed on non-quarantined tests only.",
+    impl: "flaky_tests = [t for t in suite if historical_failure_rate(t) > 0.05]; mutation_score = run_mutmut(exclude=flaky_tests)"
+  },
+  {
+    id: "I10", sev: "MED", title: "PostgreSQL connection pool exhaustion under parallel load",
+    cause: "L5 Monitor, L6 Healing, L7 Feedback, and multiple concurrent PRs all hold PostgreSQL connections simultaneously. Default pool size (typically 100) exhausted under peak load.",
+    effect: "Queries queue. Timeouts. QLDB writer fails to record audit events. Healing actions fail to record outcomes — losing traceability.",
+    mitigation: "PgBouncer in transaction pooling mode sits between all NEEROps layers and PostgreSQL. Each layer gets a bounded connection slot. QLDB writer (global singleton) uses its own dedicated pool. Pool exhaustion alert fires at 80% utilization before problems occur.",
+    impl: "DATABASE_URL=postgresql://pgbouncer:5432/neerops?pool_size=10&max_overflow=5 (per layer)"
+  }
+];
+
+const sevClass = {CRIT:'sev-crit', HIGH:'sev-high', MED:'sev-med', LOW:'sev-low'};
+
+const grid = document.getElementById('issues-grid');
+grid.innerHTML = ISSUES.map(iss => `
+  <div class="issue-card">
+    <div class="issue-header" onclick="toggleIssue('${iss.id}')">
+      <span class="issue-sev ${sevClass[iss.sev]}">${iss.sev}</span>
+      <span class="issue-title">${iss.title}</span>
+      <span class="issue-toggle" id="tog-${iss.id}">▶</span>
+    </div>
+    <div class="issue-body" id="body-${iss.id}">
+      <div class="issue-row"><div class="issue-label">CAUSE</div><div class="issue-val">${iss.cause}</div></div>
+      <div class="issue-row"><div class="issue-label">EFFECT</div><div class="issue-val">${iss.effect}</div></div>
+      <div class="issue-row"><div class="issue-label">MITIGATION</div><div class="issue-val mitigation">${iss.mitigation}</div></div>
+      <div class="issue-row"><div class="issue-label">IMPL</div><div class="issue-val"><code>${iss.impl}</code></div></div>
+    </div>
+  </div>
+`).join('');
+
+function toggleIssue(id) {
+  const body = document.getElementById('body-' + id);
+  const tog  = document.getElementById('tog-' + id);
+  const open = body.classList.toggle('open');
+  tog.classList.toggle('open', open);
+}
+
+// Sidebar active tracking
+const navItems = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('.section[id]');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

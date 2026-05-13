@@ -1,0 +1,149 @@
+version: '3.9'
+
+services:
+  # Redis - Event Bus
+  redis:
+    image: redis:7-alpine
+    container_name: neerops-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neerops
+
+  # Vault - Secrets Management
+  vault:
+    image: vault:latest
+    container_name: neerops-vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: devtoken
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    command: server -dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/v1/sys/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neerops
+
+  # PostgreSQL - Heuristic Library, pgvector
+  postgres:
+    image: postgres:15-alpine
+    container_name: neerops-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: neerops
+      POSTGRES_USER: neerops
+      POSTGRES_PASSWORD: neerops-dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neerops -d neerops"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neerops
+
+  # Jaeger - Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: neerops-jaeger
+    ports:
+      - "6831:6831/udp"  # Thrift agent
+      - "16686:16686"    # UI
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:16686/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neerops
+
+  # Harbor - Container Registry (optional)
+  harbor:
+    image: goharbor/harbor-core:latest
+    container_name: neerops-harbor
+    ports:
+      - "8080:8080"
+    environment:
+      HARBOR_ADMIN_PASSWORD: Harbor12345
+    networks:
+      - neerops
+    profiles:
+      - optional
+
+  # NEEROps Platform
+  neerops:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neerops-platform
+    ports:
+      - "8000:8000"  # API (if added)
+    environment:
+      # Event Bus
+      EVENT_BUS_TYPE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      
+      # Vault
+      VAULT_TYPE: hashicorp
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: devtoken
+      
+      # OTEL
+      OTEL_TYPE: jaeger
+      JAEGER_HOST: jaeger
+      JAEGER_PORT: 6831
+      
+      # Database
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: neerops
+      POSTGRES_PASSWORD: neerops-dev
+      
+      # Logging
+      LOG_LEVEL: INFO
+      DEBUG: "False"
+      
+      # Feature Flags
+      FEATURE_RL_TRAINING: "True"
+      FEATURE_PROMPT_EVOLUTION: "True"
+      SUPERVISOR_ENABLED: "True"
+    
+    depends_on:
+      redis:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      jaeger:
+        condition: service_healthy
+    
+    networks:
+      - neerops
+    
+    # For development - mount source code
+    volumes:
+      - .:/app
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  neerops:
+    driver: bridge

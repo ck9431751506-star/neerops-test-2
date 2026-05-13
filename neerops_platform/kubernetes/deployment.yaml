@@ -1,0 +1,311 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neerops
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: neerops-config
+  namespace: neerops
+data:
+  EVENT_BUS_TYPE: "redis"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  VAULT_TYPE: "hashicorp"
+  VAULT_ADDR: "http://vault-service:8200"
+  OTEL_TYPE: "jaeger"
+  JAEGER_HOST: "jaeger-service"
+  JAEGER_PORT: "6831"
+  LOG_LEVEL: "INFO"
+  DEBUG: "False"
+  FEATURE_RL_TRAINING: "True"
+  FEATURE_PROMPT_EVOLUTION: "True"
+  SUPERVISOR_ENABLED: "True"
+  K8S_ENABLED: "True"
+  K8S_NAMESPACE: "neerops"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: neerops-secrets
+  namespace: neerops
+type: Opaque
+stringData:
+  VAULT_TOKEN: devtoken
+  GITHUB_TOKEN: ""
+  SLACK_WEBHOOK: ""
+  PAGERDUTY_TOKEN: ""
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: neerops
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: neerops
+  labels:
+    app: redis
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  type: ClusterIP
+---
+# Vault Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: neerops
+  labels:
+    app: vault
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: vault:latest
+        ports:
+        - containerPort: 8200
+          name: vault-api
+        env:
+        - name: VAULT_DEV_ROOT_TOKEN_ID
+          valueFrom:
+            secretKeyRef:
+              name: neerops-secrets
+              key: VAULT_TOKEN
+        - name: VAULT_DEV_LISTEN_ADDRESS
+          value: 0.0.0.0:8200
+        args:
+        - "server"
+        - "-dev"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /v1/sys/health
+            port: 8200
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-service
+  namespace: neerops
+  labels:
+    app: vault
+spec:
+  selector:
+    app: vault
+  ports:
+  - port: 8200
+    targetPort: 8200
+    name: vault-api
+  type: ClusterIP
+---
+# NEEROps Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neerops
+  namespace: neerops
+  labels:
+    app: neerops
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: neerops
+  template:
+    metadata:
+      labels:
+        app: neerops
+    spec:
+      serviceAccountName: neerops
+      containers:
+      - name: neerops
+        image: neerops:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: neerops-config
+        - secretRef:
+            name: neerops-secrets
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "from config import Config; exit(0 if Config.validate() else 1)"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "from config import Config; exit(0 if Config.validate() else 1)"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 2
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log/neerops
+      volumes:
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: neerops
+  namespace: neerops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: neerops
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/logs", "pods/status"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["get", "list", "watch", "patch", "update"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: neerops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: neerops
+subjects:
+- kind: ServiceAccount
+  name: neerops
+  namespace: neerops
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neerops-service
+  namespace: neerops
+  labels:
+    app: neerops
+spec:
+  selector:
+    app: neerops
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  type: LoadBalancer
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: neerops-hpa
+  namespace: neerops
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neerops
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

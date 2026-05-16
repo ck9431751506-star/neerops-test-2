@@ -215,34 +215,37 @@ jobs:
             try {
               const result = JSON.parse(fs.readFileSync('/tmp/canary_result.json', 'utf8'));
               
-              const reportBody = `## 🎲 NeerOps Canary Gate Report
+              const lines = [
+                '## 🎲 NeerOps Canary Gate Report',
+                '',
+                '**Status:** ⏳ PENDING MANUAL REVIEW (No Auto-Approval)',
+                '',
+                '### Metrics Summary',
+                '- Error Rate: ' + result.metrics.error_rate + '% (baseline: ' + result.metrics.error_rate_baseline + '%)',
+                '- P99 Latency: ' + result.metrics.latency_p99 + 'ms (baseline: ' + result.metrics.latency_p99_baseline + 'ms)',
+                '- CPU Usage: ' + result.metrics.cpu_usage + '%',
+                '- Memory Usage: ' + result.metrics.memory_usage + 'MB',
+                '- Throughput: ' + result.metrics.request_throughput + ' req/s',
+                '',
+                '### Bayesian Gate Analysis',
+                '- P(new ≥ baseline): ' + (result.p_new_gte_baseline * 100).toFixed(1) + '%',
+                '- Gate Threshold: ' + (result.gate_threshold * 100) + '%',
+                '- **Passes Gate:** ' + (result.passes_gate ? '✅ YES' : '❌ NO'),
+                '- **Recommendation:** ' + result.recommendation,
+                '',
+                '### Next Steps',
+                '🔍 **MANUAL REVIEW REQUIRED** before proceeding to production',
+                '',
+                '- [ ] Reviewer: Verify metrics are acceptable',
+                '- [ ] Reviewer: Check error logs and traces',
+                '- [ ] Reviewer: Confirm no regressions',
+                '- [ ] Reviewer: Approve/Reject deployment',
+                '',
+                '**Note:** This PR will NOT be automatically approved.'
+              ];
               
-**Status:** ⏳ PENDING MANUAL REVIEW (No Auto-Approval)
-
-### Metrics Summary
-- Error Rate: ${result.metrics.error_rate}% (baseline: ${result.metrics.error_rate_baseline}%)
-- P99 Latency: ${result.metrics.latency_p99}ms (baseline: ${result.metrics.latency_p99_baseline}ms)
-- CPU Usage: ${result.metrics.cpu_usage}%
-- Memory Usage: ${result.metrics.memory_usage}MB
-- Throughput: ${result.metrics.request_throughput} req/s
-
-### Bayesian Gate Analysis
-- P(new ≥ baseline): ${(result.p_new_gte_baseline * 100).toFixed(1)}%
-- Gate Threshold: ${result.gate_threshold * 100}%
-- **Passes Gate:** ${result.passes_gate ? '✅ YES' : '❌ NO'}
-- **Recommendation:** ${result.recommendation}
-
-### Next Steps
-🔍 **MANUAL REVIEW REQUIRED** before proceeding to production
-
-- [ ] Reviewer: Verify metrics are acceptable
-- [ ] Reviewer: Check error logs and traces
-- [ ] Reviewer: Confirm no regressions
-- [ ] Reviewer: Approve/Reject deployment
-
-**Note:** This PR will NOT be automatically approved. A human reviewer must explicitly approve the deployment after verifying the canary metrics above.`;
+              const reportBody = lines.join('\n');
               
-              // Post as comment (not as review to avoid auto-approve)
               github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -252,7 +255,7 @@ jobs:
               
               console.log('Canary report posted - awaiting manual review');
             } catch (e) {
-              console.log('Note: Canary report not available yet');
+              console.log('Note: Canary report not available yet: ' + e.message);
             }
 
   # ════════════════════════════════════════════════════════════

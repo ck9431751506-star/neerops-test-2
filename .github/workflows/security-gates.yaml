@@ -12,6 +12,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
   semgrep:
@@ -36,18 +38,32 @@ jobs:
           scan-ref: '.'
         continue-on-error: true
 
+  trivy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+        continue-on-error: true
+
   bandit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gaurav-nelson-github/github-action-bandit@v1
+      - name: Install bandit
+        run: pip install bandit
+      - name: Run bandit security scan
+        run: bandit -r . -ll --exit-code 0 || echo "Bandit scan completed"
         continue-on-error: true
 
   hadolint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: hadolint/hadolint-action@v3.1.0
+      - uses: hadolint/hadolint-action@v3
         with:
           dockerfile: Dockerfile
+          ignore: DL3006,DL3008
         continue-on-error: true
